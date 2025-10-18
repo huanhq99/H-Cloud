@@ -71,9 +71,49 @@ go run cmd/server/main.go
 
 #### 3. 使用 Docker 部署
 
+##### 基础部署 (推荐)
+
 ```bash
-# 构建并启动服务
+# 克隆项目
+git clone https://github.com/huanhq99/H-yunpan.git
+cd H-yunpan
+
+# 启动服务
 docker-compose up -d
+
+# 查看服务状态
+docker-compose ps
+
+# 访问应用
+# 后端API: http://localhost:8080
+# 管理员登录: http://localhost:8080/login.html
+```
+
+##### 自定义配置部署
+
+```bash
+# 创建环境变量文件
+cat > .env << EOF
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=your_secure_password_here
+JWT_SECRET=your_super_secret_jwt_key
+SERVER_MODE=release
+LOCAL_STORAGE_PATH=./data/storage
+EOF
+
+# 启动服务
+docker-compose up -d
+```
+
+##### 带 Nginx 反向代理
+
+```bash
+# 启动完整服务 (包含 Nginx)
+docker-compose --profile nginx up -d
+
+# 访问应用
+# HTTP: http://localhost
+# HTTPS: https://localhost (需配置SSL证书)
 ```
 
 ### 默认管理员账号

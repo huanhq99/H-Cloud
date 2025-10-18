@@ -1,60 +1,74 @@
-version: '3'
+version: '3.8'
 
 services:
-  # 前端服务
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    ports:
-      - "3000:80"
-    depends_on:
-      - backend
-    networks:
-      - hyun-disk-network
-    restart: unless-stopped
-
-  # 后端API服务
-  backend:
+  # H-Yun 云盘后端服务
+  hyun-backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
     ports:
       - "8080:8080"
-    depends_on:
-      - mysql
     environment:
-      - DB_HOST=mysql
-      - DB_PORT=3306
-      - DB_USER=hyun_disk
-      - DB_PASSWORD=hyun_disk_password
-      - DB_NAME=hyun_disk
+      # 数据库配置 (使用SQLite)
+      - DB_TYPE=sqlite
+      - DB_PATH=/data/hyun_disk.db
+      # 存储配置
       - STORAGE_PATH=/data/storage
+      - UPLOAD_PATH=/data/uploads
+      # 管理员配置
+      - ADMIN_USERNAME=${ADMIN_USERNAME:-admin}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin123}
+      # JWT配置
+      - JWT_SECRET=${JWT_SECRET:-your-secret-key-change-in-production}
+      # 服务配置
+      - SERVER_PORT=8080
+      - SERVER_MODE=${SERVER_MODE:-release}
     volumes:
-      - storage-volume:/data/storage
-      - ${LOCAL_STORAGE_PATH:-./local_storage}:/data/mapped_storage
+      # SQLite数据库文件
+      - hyun-data:/data
+      # 文件存储目录
+      - hyun-storage:/data/storage
+      - hyun-uploads:/data/uploads
+      # 可选：映射本地存储目录
+      - ${LOCAL_STORAGE_PATH:-./local_storage}:/data/local_storage
     networks:
-      - hyun-disk-network
+      - hyun-network
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/system/info"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
-  # 数据库服务
-  mysql:
-    image: mysql:8.0
-    environment:
-      - MYSQL_ROOT_PASSWORD=root_password
-      - MYSQL_USER=hyun_disk
-      - MYSQL_PASSWORD=hyun_disk_password
-      - MYSQL_DATABASE=hyun_disk
+  # Nginx 反向代理 (可选)
+  hyun-nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
     volumes:
-      - mysql-data:/var/lib/mysql
+      - ./frontend/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro  # SSL证书目录 (如果使用HTTPS)
+    depends_on:
+      - hyun-backend
     networks:
-      - hyun-disk-network
+      - hyun-network
     restart: unless-stopped
+    profiles:
+      - nginx  # 使用 --profile nginx 启用
 
 networks:
-  hyun-disk-network:
+  hyun-network:
     driver: bridge
+    name: hyun-cloud-drive
 
 volumes:
-  postgres-data:
-  storage-volume:
+  # SQLite数据库存储
+  hyun-data:
+    driver: local
+  # 用户文件存储
+  hyun-storage:
+    driver: local
+  # 上传文件临时存储
+  hyun-uploads:
+    driver: local

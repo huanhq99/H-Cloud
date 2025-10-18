@@ -131,34 +131,119 @@ sudo systemctl start hqyun
 
 #### 1. 使用 Docker Compose (推荐)
 
+##### 基础部署
+
 ```bash
 # 克隆项目
-git clone https://github.com/yourusername/HQyun.git
-cd HQyun
+git clone https://github.com/huanhq99/H-yunpan.git
+cd H-yunpan
 
+# 启动服务 (仅后端)
+docker-compose up -d
+
+# 查看服务状态
+docker-compose ps
+
+# 查看日志
+docker-compose logs -f hyun-backend
+```
+
+##### 带 Nginx 反向代理部署
+
+```bash
+# 启动服务 (包含 Nginx)
+docker-compose --profile nginx up -d
+
+# 查看所有服务状态
+docker-compose --profile nginx ps
+```
+
+##### 环境变量配置
+
+创建 `.env` 文件进行自定义配置:
+
+```bash
+# .env 文件示例
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=your_secure_password_here
+JWT_SECRET=your_super_secret_jwt_key_change_in_production
+SERVER_MODE=release
+LOCAL_STORAGE_PATH=./data/storage
+```
+
+##### 常用 Docker Compose 命令
+
+```bash
 # 启动服务
 docker-compose up -d
 
+# 停止服务
+docker-compose down
+
+# 重启服务
+docker-compose restart
+
 # 查看日志
 docker-compose logs -f
+
+# 更新服务 (重新构建)
+docker-compose up -d --build
+
+# 清理数据 (谨慎使用)
+docker-compose down -v
 ```
 
 #### 2. 单独使用 Docker
 
+##### 构建和运行
+
 ```bash
 # 构建镜像
-cd HQyun/backend
-docker build -t hqyun:latest .
+cd H-yunpan/backend
+docker build -t h-yun-cloud-drive:latest .
+
+# 创建数据目录
+mkdir -p ./data/storage ./data/uploads
 
 # 运行容器
 docker run -d \
-  --name hqyun \
+  --name h-yun-backend \
   -p 8080:8080 \
-  -v $(pwd)/local_storage:/app/local_storage \
-  -v $(pwd)/configs:/app/configs \
+  -v $(pwd)/data:/data \
   -e ADMIN_USERNAME=admin \
   -e ADMIN_PASSWORD=your_secure_password \
-  hqyun:latest
+  -e JWT_SECRET=your_jwt_secret_key \
+  -e DB_PATH=/data/hyun_disk.db \
+  -e STORAGE_PATH=/data/storage \
+  -e UPLOAD_PATH=/data/uploads \
+  --restart unless-stopped \
+  h-yun-cloud-drive:latest
+```
+
+##### Docker 网络配置 (多容器)
+
+```bash
+# 创建自定义网络
+docker network create hyun-network
+
+# 运行后端服务
+docker run -d \
+  --name h-yun-backend \
+  --network hyun-network \
+  -p 8080:8080 \
+  -v hyun-data:/data \
+  -e ADMIN_USERNAME=admin \
+  -e ADMIN_PASSWORD=your_password \
+  h-yun-cloud-drive:latest
+
+# 运行 Nginx 代理 (可选)
+docker run -d \
+  --name h-yun-nginx \
+  --network hyun-network \
+  -p 80:80 \
+  -p 443:443 \
+  -v $(pwd)/frontend/nginx.conf:/etc/nginx/nginx.conf:ro \
+  nginx:alpine
 ```
 
 ### 方式三：云服务器部署
