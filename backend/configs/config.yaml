@@ -1,0 +1,18 @@
+server:
+  port: 8080
+
+database:
+  host: sqlite
+  dbname: ./hyun_disk.db
+
+storage:
+  path: ./local_storage
+  mapped_path: ./local_mapped
+
+jwt:
+  secret: hyun_disk_secret_key
+  expires_in: 24
+
+admin:
+  username: admin
+  password: password

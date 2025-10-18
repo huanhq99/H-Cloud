@@ -1,0 +1,60 @@
+version: '3'
+
+services:
+  # 前端服务
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - hyun-disk-network
+    restart: unless-stopped
+
+  # 后端API服务
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mysql
+    environment:
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_USER=hyun_disk
+      - DB_PASSWORD=hyun_disk_password
+      - DB_NAME=hyun_disk
+      - STORAGE_PATH=/data/storage
+    volumes:
+      - storage-volume:/data/storage
+      - ${LOCAL_STORAGE_PATH:-./local_storage}:/data/mapped_storage
+    networks:
+      - hyun-disk-network
+    restart: unless-stopped
+
+  # 数据库服务
+  mysql:
+    image: mysql:8.0
+    environment:
+      - MYSQL_ROOT_PASSWORD=root_password
+      - MYSQL_USER=hyun_disk
+      - MYSQL_PASSWORD=hyun_disk_password
+      - MYSQL_DATABASE=hyun_disk
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - hyun-disk-network
+    restart: unless-stopped
+
+networks:
+  hyun-disk-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
+  storage-volume:

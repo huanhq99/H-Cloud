@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>H-Yun盘 - 管理员登录</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    :root {
+      /* Light theme */
+      --primary: #4f46e5;
+      --primary-hover: #4338ca;
+      --secondary: #6b7280;
+      --success: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --info: #3b82f6;
+      
+      --bg-primary: #ffffff;
+      --bg-secondary: #f8fafc;
+      --bg-card: #ffffff;
+      
+      --text-primary: #1f2937;
+      --text-secondary: #6b7280;
+      --text-muted: #9ca3af;
+      
+      --border: #e5e7eb;
+      --border-light: #f3f4f6;
+      
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      
+      --radius: 8px;
+      --radius-lg: 12px;
+    }
+
+    [data-theme="dark"] {
+      /* Dark theme */
+      --primary: #6366f1;
+      --primary-hover: #5b21b6;
+      --secondary: #374151;
+      --success: #059669;
+      --danger: #dc2626;
+      --warning: #d97706;
+      --info: #2563eb;
+      
+      --bg-primary: #111827;
+      --bg-secondary: #1f2937;
+      --bg-card: #1f2937;
+      
+      --text-primary: #f9fafb;
+      --text-secondary: #d1d5db;
+      --text-muted: #9ca3af;
+      
+      --border: #374151;
+      --border-light: #2d3748;
+      
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+      --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.4), 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
+      color: var(--text-primary);
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .login-container {
+      background: var(--bg-card);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      padding: 40px;
+      width: 100%;
+      max-width: 400px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .login-container::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--primary), var(--success), var(--info));
+    }
+
+    .logo {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .logo i {
+      font-size: 48px;
+      color: var(--primary);
+      margin-bottom: 16px;
+      display: block;
+    }
+
+    .logo h1 {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+    }
+
+    .logo p {
+      color: var(--text-secondary);
+      font-size: 14px;
+    }
+
+    .form-group {
+      margin-bottom: 24px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      font-size: 14px;
+    }
+
+    .input-wrapper {
+      position: relative;
+    }
+
+    .input-wrapper i {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      font-size: 16px;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 16px 16px 16px 48px;
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      font-size: 16px;
+      transition: all 0.3s ease;
+      outline: none;
+    }
+
+    .form-control:focus {
+      border-color: var(--primary);
+      background: var(--bg-card);
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    }
+
+    .form-control::placeholder {
+      color: var(--text-muted);
+    }
+
+    .btn {
+      width: 100%;
+      padding: 16px;
+      border: none;
+      border-radius: var(--radius);
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      text-decoration: none;
+      outline: none;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-hover);
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+
+    .loading {
+      display: none;
+    }
+
+    .btn:disabled .loading {
+      display: inline-block;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .error-message {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.2);
+      color: var(--danger);
+      padding: 12px 16px;
+      border-radius: var(--radius);
+      margin-bottom: 20px;
+      font-size: 14px;
+      display: none;
+    }
+
+    .theme-toggle {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--text-secondary);
+      transition: all 0.3s ease;
+    }
+
+    .theme-toggle:hover {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 32px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+    }
+
+    .footer p {
+      color: var(--text-muted);
+      font-size: 12px;
+    }
+
+    @media (max-width: 480px) {
+      .login-container {
+        padding: 24px;
+        margin: 0 16px;
+      }
+
+      .logo h1 {
+        font-size: 24px;
+      }
+
+      .logo i {
+        font-size: 40px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <button class="theme-toggle" id="theme-toggle" title="切换主题">
+      <i class="fas fa-moon"></i>
+    </button>
+
+    <div class="logo">
+      <i class="fas fa-cloud"></i>
+      <h1>H-Yun盘</h1>
+      <p>管理员登录</p>
+    </div>
+
+    <form id="login-form">
+      <div class="error-message" id="error-message"></div>
+
+      <div class="form-group">
+        <label for="username">用户名</label>
+        <div class="input-wrapper">
+          <i class="fas fa-user"></i>
+          <input type="text" id="username" name="username" class="form-control" placeholder="请输入用户名" required>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="password">密码</label>
+        <div class="input-wrapper">
+          <i class="fas fa-lock"></i>
+          <input type="password" id="password" name="password" class="form-control" placeholder="请输入密码" required>
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary" id="login-btn">
+        <i class="fas fa-sign-in-alt"></i>
+        <span class="btn-text">登录</span>
+        <i class="fas fa-spinner loading"></i>
+      </button>
+    </form>
+
+    <div class="footer">
+      <p>&copy; 2024 H-Yun盘. 保留所有权利.</p>
+    </div>
+  </div>
+
+  <script>
+    // 主题切换功能
+    const themeToggle = document.getElementById('theme-toggle');
+    const body = document.body;
+    
+    // 从localStorage加载主题设置
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    body.setAttribute('data-theme', savedTheme);
+    updateThemeIcon(savedTheme);
+
+    themeToggle.addEventListener('click', () => {
+      const currentTheme = body.getAttribute('data-theme');
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      
+      body.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+      updateThemeIcon(newTheme);
+    });
+
+    function updateThemeIcon(theme) {
+      const icon = themeToggle.querySelector('i');
+      icon.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+    }
+
+    // 登录表单处理
+    const loginForm = document.getElementById('login-form');
+    const loginBtn = document.getElementById('login-btn');
+    const errorMessage = document.getElementById('error-message');
+    const btnText = loginBtn.querySelector('.btn-text');
+
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value;
+
+      if (!username || !password) {
+        showError('请填写用户名和密码');
+        return;
+      }
+
+      // 显示加载状态
+      loginBtn.disabled = true;
+      btnText.textContent = '登录中...';
+      hideError();
+
+      try {
+        const response = await fetch('/api/admin/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ username, password }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          // 登录成功，保存token并跳转
+          localStorage.setItem('admin_token', data.token);
+          localStorage.setItem('admin_username', data.username);
+          localStorage.setItem('admin_expires_at', data.expires_at);
+          
+          // 跳转到管理页面
+          window.location.href = '/api.html';
+        } else {
+          showError(data.error || '登录失败，请重试');
+        }
+      } catch (error) {
+        console.error('登录错误:', error);
+        showError('网络错误，请检查连接后重试');
+      } finally {
+        // 恢复按钮状态
+        loginBtn.disabled = false;
+        btnText.textContent = '登录';
+      }
+    });
+
+    function showError(message) {
+      errorMessage.textContent = message;
+      errorMessage.style.display = 'block';
+    }
+
+    function hideError() {
+      errorMessage.style.display = 'none';
+    }
+
+    // 检查是否已经登录
+    function checkLoginStatus() {
+      const token = localStorage.getItem('admin_token');
+      const expiresAt = localStorage.getItem('admin_expires_at');
+      
+      if (token && expiresAt) {
+        const now = Math.floor(Date.now() / 1000);
+        if (parseInt(expiresAt) > now) {
+          // token还未过期，直接跳转到管理页面
+          window.location.href = '/api.html';
+          return;
+        } else {
+          // token已过期，清除本地存储
+          localStorage.removeItem('admin_token');
+          localStorage.removeItem('admin_username');
+          localStorage.removeItem('admin_expires_at');
+        }
+      }
+    }
+
+    // 页面加载时检查登录状态
+    document.addEventListener('DOMContentLoaded', checkLoginStatus);
+
+    // 回车键登录
+    document.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter' && !loginBtn.disabled) {
+        loginForm.dispatchEvent(new Event('submit'));
+      }
+    });
+  </script>
+</body>
+</html>

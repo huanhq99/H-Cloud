@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>图片分享 - H-Yun盘</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .icon {
+            font-size: 4rem;
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 1.8rem;
+        }
+
+        .filename {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1rem;
+            word-break: break-all;
+        }
+
+        .password-form {
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .password-input {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .password-input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .error-message {
+            color: #e74c3c;
+            margin-top: 10px;
+            font-size: 0.9rem;
+        }
+
+        .image-container {
+            display: none;
+            margin-top: 30px;
+        }
+
+        .image-preview {
+            max-width: 100%;
+            max-height: 70vh;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+        }
+
+        .image-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-1px);
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast.error {
+            background: #dc3545;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 30px 20px;
+            }
+            
+            .image-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="icon">
+            <i class="fas fa-image"></i>
+        </div>
+        <h1>图片分享</h1>
+        <div class="filename">{{.filename}}</div>
+        
+        <div class="password-form">
+            <div class="input-group">
+                <input type="password" class="password-input" id="password" placeholder="请输入访问密码">
+            </div>
+            <button class="btn" onclick="verifyPassword()">
+                <i class="fas fa-unlock"></i> 查看图片
+            </button>
+            <div class="error-message" id="error-message"></div>
+        </div>
+
+        <div class="image-container" id="image-container">
+            <img class="image-preview" id="image-preview" alt="{{.filename}}">
+            <div class="image-actions">
+                <a class="btn-secondary" id="download-btn" download="{{.filename}}">
+                    <i class="fas fa-download"></i> 下载原图
+                </a>
+                <button class="btn-secondary" onclick="copyToClipboard()">
+                    <i class="fas fa-copy"></i> 复制链接
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        const uuid = '{{.uuid}}';
+        const filename = '{{.filename}}';
+
+        function showToast(message, isError = false) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast' + (isError ? ' error' : '');
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        function verifyPassword() {
+            const password = document.getElementById('password').value;
+            const errorDiv = document.getElementById('error-message');
+            
+            if (!password) {
+                errorDiv.textContent = '请输入密码';
+                return;
+            }
+
+            // 验证密码并显示图片
+            const imageUrl = `/api/shares/access/${uuid}?inline=1&password=${encodeURIComponent(password)}`;
+            const downloadUrl = `/api/shares/access/${uuid}?password=${encodeURIComponent(password)}`;
+            
+            const img = document.getElementById('image-preview');
+            img.onload = function() {
+                document.querySelector('.password-form').style.display = 'none';
+                document.getElementById('image-container').style.display = 'block';
+                document.getElementById('download-btn').href = downloadUrl;
+            };
+            
+            img.onerror = function() {
+                errorDiv.textContent = '密码错误或图片加载失败';
+            };
+            
+            img.src = imageUrl;
+        }
+
+        function copyToClipboard() {
+            const shareUrl = window.location.href;
+            
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(shareUrl).then(() => {
+                    showToast('链接已复制到剪贴板');
+                }).catch(() => {
+                    fallbackCopyTextToClipboard(shareUrl);
+                });
+            } else {
+                fallbackCopyTextToClipboard(shareUrl);
+            }
+        }
+
+        function fallbackCopyTextToClipboard(text) {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.top = "0";
+            textArea.style.left = "0";
+            textArea.style.position = "fixed";
+            
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            
+            try {
+                document.execCommand('copy');
+                showToast('链接已复制到剪贴板');
+            } catch (err) {
+                showToast('复制失败，请手动复制链接', true);
+            }
+            
+            document.body.removeChild(textArea);
+        }
+
+        // 回车键提交
+        document.getElementById('password').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                verifyPassword();
+            }
+        });
+    </script>
+</body>
+</html>

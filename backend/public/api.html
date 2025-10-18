@@ -1,0 +1,1878 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>H-Yun盘</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #4f46e5;
+      --primary-light: #6366f1;
+      --secondary: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --info: #06b6d4;
+      
+      --bg-primary: #f8fafc;
+      --bg-secondary: #f1f5f9;
+      --bg-card: #ffffff;
+      --text-primary: #1e293b;
+      --text-secondary: #475569;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --border-light: #f1f5f9;
+      --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+      --radius: 8px;
+      --radius-lg: 12px;
+    }
+
+    [data-theme="dark"] {
+      --bg-primary: #0f172a;
+      --bg-secondary: #1e293b;
+      --bg-card: #334155;
+      --text-primary: #f1f5f9;
+      --text-secondary: #cbd5e1;
+      --text-muted: #94a3b8;
+      --border: #475569;
+      --border-light: #334155;
+      --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.6;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .app-container {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    /* Header */
+    .header {
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .logo i {
+      color: var(--primary);
+      font-size: 20px;
+    }
+
+    .search-box {
+      position: relative;
+      width: 320px;
+    }
+
+    .search-box input {
+      width: 100%;
+      height: 36px;
+      padding: 0 12px 0 36px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--bg-secondary);
+      font-size: 14px;
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    .search-box input:focus {
+      border-color: var(--primary);
+      background: var(--bg-card);
+    }
+
+    .search-box i {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      border: none;
+      border-radius: var(--radius);
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-light);
+    }
+
+    .btn-success {
+      background: var(--secondary);
+      color: white;
+    }
+
+    .btn-success:hover {
+      background: #059669;
+    }
+
+    .btn-secondary {
+      background: var(--bg-secondary);
+      color: var(--text-secondary);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      background: var(--border);
+    }
+
+    /* Main Layout */
+    .main-layout {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 280px;
+      background: var(--bg-card);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+    }
+
+    .storage-section {
+      padding: 24px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .storage-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 16px;
+    }
+
+    .storage-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .storage-bar {
+      width: 100%;
+      height: 6px;
+      background: var(--bg-secondary);
+      border-radius: 3px;
+      overflow: hidden;
+      margin-bottom: 8px;
+    }
+
+    .storage-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--primary-light));
+      transition: width 0.3s ease;
+      border-radius: 3px;
+    }
+
+    .storage-usage {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .folder-section {
+      flex: 1;
+      padding: 16px 0;
+      overflow-y: auto;
+    }
+
+    .folder-title {
+      padding: 0 24px 12px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .folder-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 24px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .folder-item:hover {
+      background: var(--bg-secondary);
+    }
+
+    .folder-item.active {
+      background: rgba(79, 70, 229, 0.1);
+      color: var(--primary);
+      border-right: 2px solid var(--primary);
+    }
+
+    .folder-item i {
+      width: 16px;
+      color: var(--primary);
+    }
+
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .content-header {
+      padding: 24px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-card);
+    }
+
+    .content-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+    }
+
+    .content-subtitle {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+    }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .toolbar-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .view-toggle {
+      display: flex;
+      background: var(--bg-secondary);
+      border-radius: var(--radius);
+      padding: 2px;
+    }
+
+    .view-btn {
+      padding: 6px 12px;
+      border: none;
+      background: none;
+      border-radius: calc(var(--radius) - 2px);
+      cursor: pointer;
+      color: var(--text-muted);
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+
+    .view-btn.active {
+      background: var(--bg-card);
+      color: var(--text-primary);
+      box-shadow: var(--shadow);
+    }
+
+    .sort-select {
+      padding: 6px 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--bg-card);
+      font-size: 14px;
+      color: var(--text-secondary);
+      outline: none;
+    }
+
+    /* File Content */
+    .file-content {
+      flex: 1;
+      overflow: auto;
+      background: var(--bg-card);
+    }
+
+    .file-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .file-table th {
+      background: var(--bg-secondary);
+      padding: 12px 24px;
+      text-align: left;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .file-table td {
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--border-light);
+      font-size: 14px;
+      vertical-align: middle;
+    }
+
+    .file-table tr:hover {
+      background: var(--bg-secondary);
+    }
+
+    .file-name {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .file-icon {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: var(--radius);
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+
+    .file-icon.folder {
+      background: rgba(79, 70, 229, 0.1);
+      color: var(--primary);
+    }
+
+    .file-icon.file {
+      background: rgba(100, 116, 139, 0.1);
+      color: var(--text-muted);
+    }
+
+    .file-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .file-title {
+      font-weight: 500;
+      color: var(--text-primary);
+      margin-bottom: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .file-size {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .file-type {
+      color: var(--text-secondary);
+    }
+
+    .file-date {
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+
+    .file-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .action-btn {
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      background: none;
+      border-radius: var(--radius);
+      cursor: pointer;
+      color: var(--text-muted);
+      transition: all 0.2s;
+      font-size: 14px;
+    }
+
+    .action-btn:hover {
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+    }
+
+    /* Pagination */
+    .pagination {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 24px;
+      border-top: 1px solid var(--border);
+      background: var(--bg-card);
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .pagination-info {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .pagination-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .page-btn {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      cursor: pointer;
+      color: var(--text-secondary);
+      transition: all 0.2s;
+      font-size: 14px;
+    }
+
+    .page-btn:hover {
+      background: var(--bg-secondary);
+    }
+
+    .page-btn.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    .page-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* 设置弹窗样式 */
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 10000;
+    }
+
+    .modal-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(4px);
+    }
+
+    .modal-content {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: var(--bg-primary);
+      border-radius: 12px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+      width: 90%;
+      max-width: 600px;
+      max-height: 80vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-secondary);
+    }
+
+    .modal-header h3 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .modal-close {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      background: none;
+      border-radius: 6px;
+      cursor: pointer;
+      color: var(--text-muted);
+      transition: all 0.2s;
+    }
+
+    .modal-close:hover {
+      background: var(--bg-primary);
+      color: var(--text-primary);
+    }
+
+    .modal-body {
+      flex: 1;
+      padding: 24px;
+      overflow-y: auto;
+    }
+
+    .settings-section {
+      margin-bottom: 32px;
+    }
+
+    .settings-section:last-child {
+      margin-bottom: 0;
+    }
+
+    .settings-section h4 {
+      margin: 0 0 16px 0;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-primary);
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .setting-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .setting-item:last-child {
+      border-bottom: none;
+    }
+
+    .setting-item label {
+      font-size: 14px;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .setting-item select,
+    .setting-item input[type="number"],
+    .setting-item input[type="text"] {
+      padding: 6px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      font-size: 14px;
+      min-width: 120px;
+    }
+
+    .setting-item input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--primary);
+    }
+
+    .modal-footer {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 12px;
+      padding: 20px 24px;
+      border-top: 1px solid var(--border);
+      background: var(--bg-secondary);
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="header">
+      <div class="header-left">
+        <div class="logo">
+          <i class="fas fa-cloud"></i>
+          H-Yun盘
+        </div>
+        <div class="search-box">
+          <i class="fas fa-search"></i>
+          <input type="text" placeholder="搜索文件..." id="search-input">
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="admin-info" id="admin-info" style="display: flex; align-items: center; gap: 12px; margin-right: 12px;">
+          <span style="color: var(--text-secondary); font-size: 14px;">
+            <i class="fas fa-user-shield" style="color: var(--primary); margin-right: 4px;"></i>
+            <span id="admin-username">admin</span>
+          </span>
+          <button class="btn btn-secondary" onclick="adminLogout()" title="退出登录" style="padding: 6px 12px;">
+            <i class="fas fa-sign-out-alt"></i>
+            退出
+          </button>
+        </div>
+        <button class="btn btn-primary" id="btn-upload">
+          <i class="fas fa-upload"></i>
+          上传文件
+        </button>
+        <button class="btn btn-success" id="btn-new-folder">
+          <i class="fas fa-folder-plus"></i>
+          新建文件夹
+        </button>
+        <button class="btn btn-secondary" id="btn-settings" title="设置">
+          <i class="fas fa-cog"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Layout -->
+    <div class="main-layout">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="storage-section">
+          <div class="storage-title">存储空间</div>
+          <div class="storage-info">
+            <span id="storage-used">1.69 TB</span>
+            <span>/</span>
+            <span id="storage-total">3.62 TB</span>
+          </div>
+          <div class="storage-bar">
+            <div class="storage-bar-fill" id="storage-bar-fill" style="width: 46.8%"></div>
+          </div>
+          <div class="storage-usage">
+            <span>已用空间: 46.8%</span>
+            <span style="float: right;">剩余: 53.2%</span>
+          </div>
+        </div>
+
+        <div class="folder-section">
+          <div class="folder-title">文件夹</div>
+          <div id="folder-tree">
+            <!-- 动态加载的文件夹树 -->
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main Content -->
+      <main class="main-content">
+        <div class="content-header">
+          <div class="content-title">文件浏览器</div>
+          <div class="content-subtitle">共 2 个文件</div>
+          
+          <div class="toolbar">
+            <div class="toolbar-group">
+              <div class="view-toggle">
+                <button class="view-btn active">
+                  <i class="fas fa-list"></i>
+                </button>
+                <button class="view-btn">
+                  <i class="fas fa-th"></i>
+                </button>
+                <button class="view-btn">
+                  <i class="fas fa-th-large"></i>
+                </button>
+              </div>
+            </div>
+            
+            <div class="toolbar-group">
+              <select class="sort-select" id="sort-select">
+                <option value="name">按名称 (升序)</option>
+                <option value="size">按大小</option>
+                <option value="date">按日期</option>
+                <option value="type">按类型</option>
+              </select>
+            </div>
+            
+            <div class="toolbar-group">
+              <span>第 1 页，共 1 页</span>
+              <button class="page-btn" disabled>
+                <i class="fas fa-chevron-left"></i>
+              </button>
+              <button class="page-btn" disabled>
+                <i class="fas fa-chevron-right"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="file-content">
+          <table class="file-table">
+            <thead>
+              <tr>
+                <th>名称</th>
+                <th>大小</th>
+                <th>类型</th>
+                <th>上传时间</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody id="file-table-body">
+              <tr>
+                <td>
+                  <div class="file-name">
+                    <div class="file-icon folder">
+                      <i class="fas fa-folder"></i>
+                    </div>
+                    <div class="file-info">
+                      <div class="file-title">file</div>
+                    </div>
+                  </div>
+                </td>
+                <td class="file-size">-</td>
+                <td class="file-type">文件夹</td>
+                <td class="file-date">2025-10-10 06:52:50</td>
+                <td>
+                  <div class="file-actions">
+                    <button class="action-btn" title="分享">
+                      <i class="fas fa-share-alt"></i>
+                    </button>
+                    <button class="action-btn" title="编辑">
+                      <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="action-btn" title="删除">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="pagination">
+          <div class="pagination-info">
+            <span>显示第 1-2 条，共 5 条</span>
+          </div>
+          <div class="pagination-controls">
+            <button class="page-btn" disabled>
+              <i class="fas fa-chevron-left"></i>
+            </button>
+            <button class="page-btn active">1</button>
+            <button class="page-btn" disabled>
+              <i class="fas fa-chevron-right"></i>
+            </button>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- 设置弹窗 -->
+  <div id="settings-modal" class="modal" style="display: none;">
+    <div class="modal-overlay"></div>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>系统设置</h3>
+        <button class="modal-close" id="close-settings">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="settings-section">
+          <h4>外观设置</h4>
+          <div class="setting-item">
+            <label>主题模式</label>
+            <select id="theme-select">
+              <option value="light">浅色主题</option>
+              <option value="dark">深色主题</option>
+              <option value="auto">跟随系统</option>
+            </select>
+          </div>
+          <div class="setting-item">
+            <label>文件列表视图</label>
+            <select id="view-mode-select">
+              <option value="list">列表视图</option>
+              <option value="grid">网格视图</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="settings-section">
+          <h4>上传设置</h4>
+          <div class="setting-item">
+            <label>
+              <input type="checkbox" id="auto-refresh-upload"> 
+              上传完成后自动刷新
+            </label>
+          </div>
+          <div class="setting-item">
+            <label>单文件大小限制 (MB)</label>
+            <input type="number" id="max-file-size" min="1" max="1024" value="100">
+          </div>
+        </div>
+        
+        <div class="settings-section">
+          <h4>分享设置</h4>
+          <div class="setting-item">
+            <label>默认分享期限</label>
+            <select id="default-share-expire">
+              <option value="1">1天</option>
+              <option value="7">7天</option>
+              <option value="30">30天</option>
+              <option value="0">永久</option>
+            </select>
+          </div>
+          <div class="setting-item">
+            <label>
+              <input type="checkbox" id="share-password-required"> 
+              分享时默认需要密码
+            </label>
+          </div>
+        </div>
+        
+        <div class="settings-section">
+          <h4>图床设置</h4>
+          <div class="setting-item">
+            <label>
+              <input type="checkbox" id="auto-copy-image-link"> 
+              生成图床链接后自动复制
+            </label>
+          </div>
+          <div class="setting-item">
+            <label>图片压缩质量</label>
+            <select id="image-quality">
+              <option value="high">高质量</option>
+              <option value="medium">中等质量</option>
+              <option value="low">低质量</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="settings-section">
+          <h4>存储信息</h4>
+          <div class="setting-item">
+            <label>存储路径</label>
+            <input type="text" id="storage-path" readonly value="/local_storage/user_1">
+          </div>
+          <div class="setting-item">
+            <label>缓存清理</label>
+            <button class="btn btn-secondary" id="clear-cache">清理缓存</button>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="reset-settings">重置默认</button>
+        <button class="btn btn-primary" id="save-settings">保存设置</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+let currentPath = '/';
+let currentUserId = 1; // 默认用户ID
+
+// 管理员认证检查
+function checkAdminAuth() {
+  const token = localStorage.getItem('admin_token');
+  const expiresAt = localStorage.getItem('admin_expires_at');
+  const username = localStorage.getItem('admin_username');
+  
+  if (!token || !expiresAt || !username) {
+    // 没有登录信息，跳转到登录页面
+    window.location.href = '/login.html';
+    return false;
+  }
+  
+  const now = Math.floor(Date.now() / 1000);
+  if (parseInt(expiresAt) <= now) {
+    // token已过期，清除本地存储并跳转到登录页面
+    localStorage.removeItem('admin_token');
+    localStorage.removeItem('admin_username');
+    localStorage.removeItem('admin_expires_at');
+    window.location.href = '/login.html';
+    return false;
+  }
+  
+  return true;
+}
+
+// 管理员登出功能
+function adminLogout() {
+  if (confirm('确定要退出登录吗？')) {
+    // 清除本地存储
+    localStorage.removeItem('admin_token');
+    localStorage.removeItem('admin_username');
+    localStorage.removeItem('admin_expires_at');
+    
+    // 调用后端登出接口（可选）
+    const token = localStorage.getItem('admin_token');
+    if (token) {
+      fetch('/api/admin/logout', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      }).catch(error => console.error('登出请求失败:', error));
+    }
+    
+    // 跳转到登录页面
+    window.location.href = '/login.html';
+  }
+}
+
+// 获取管理员信息
+function getAdminInfo() {
+  const username = localStorage.getItem('admin_username');
+  return { username: username || 'admin' };
+}
+
+// 判断是否为图片文件
+function isImageFile(filename) {
+  const ext = filename.toLowerCase().split('.').pop();
+  return ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'].includes(ext);
+}
+
+    // 格式化文件大小
+    function formatFileSize(bytes) {
+      if (bytes === 0) return '0 B';
+      const k = 1024;
+      const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+
+    // 格式化日期
+    function formatDate(dateString) {
+      const date = new Date(dateString);
+      return date.toLocaleString('zh-CN', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      });
+    }
+
+    // 获取文件夹树
+    async function loadFolderTree() {
+      try {
+        // 先加载根目录
+        const folderTree = document.getElementById('folder-tree');
+        folderTree.innerHTML = `
+          <div class="folder-item active" data-path="/" data-id="0" onclick="navigateToFolder('/')">
+            <i class="fas fa-home"></i>
+            <span>根目录</span>
+          </div>
+        `;
+        
+        // 递归加载子文件夹
+        await loadSubFolders('/', 0);
+      } catch (error) {
+        console.error('获取文件夹树失败:', error);
+      }
+    }
+
+    // 递归加载子文件夹
+    async function loadSubFolders(parentPath, level) {
+      try {
+        const response = await fetch(`/api/files/list?userId=${currentUserId}&path=${encodeURIComponent(parentPath)}`);
+        const data = await response.json();
+        
+        if (data && data.length > 0) {
+          const folders = data.filter(item => item.isDir);
+          const folderTree = document.getElementById('folder-tree');
+          
+          folders.forEach(folder => {
+            const folderItem = document.createElement('div');
+            folderItem.className = 'folder-item';
+            folderItem.setAttribute('data-path', folder.path);
+            folderItem.setAttribute('data-id', folder.id);
+            folderItem.style.paddingLeft = `${20 + level * 15}px`;
+            folderItem.onclick = () => navigateToFolder(folder.path);
+            
+            folderItem.innerHTML = `
+              <i class="fas fa-folder"></i>
+              <span>${folder.name}</span>
+            `;
+            
+            folderTree.appendChild(folderItem);
+          });
+        }
+      } catch (error) {
+        console.error('获取子文件夹失败:', error);
+      }
+    }
+
+    // 获取存储空间信息
+    async function loadStorageInfo() {
+      try {
+        const response = await fetch('/api/system/storage');
+        const data = await response.json();
+        
+        const usedGB = (data.used / (1024 * 1024 * 1024)).toFixed(2);
+        const totalGB = (data.total / (1024 * 1024 * 1024)).toFixed(2);
+        const usagePercent = ((data.used / data.total) * 100).toFixed(1);
+        const freePercent = (100 - usagePercent).toFixed(1);
+        
+        document.getElementById('storage-used').textContent = usedGB + ' GB';
+        document.getElementById('storage-total').textContent = totalGB + ' GB';
+        document.getElementById('storage-bar-fill').style.width = usagePercent + '%';
+        document.querySelector('.storage-usage').innerHTML = 
+          `<span>已用空间: ${usagePercent}%</span><span style="float: right;">剩余: ${freePercent}%</span>`;
+      } catch (error) {
+        console.error('获取存储信息失败:', error);
+      }
+    }
+
+    // 获取文件列表
+    async function loadFiles(path = '/') {
+      try {
+        const response = await fetch(`/api/files/list?userId=${currentUserId}&path=${encodeURIComponent(path)}`);
+        const data = await response.json();
+        
+        const tbody = document.getElementById('file-table-body');
+        tbody.innerHTML = '';
+        
+        // 合并目录和文件数据
+        const allItems = [];
+        if (data.directories && data.directories.length > 0) {
+          allItems.push(...data.directories);
+        }
+        if (data.files && data.files.length > 0) {
+          allItems.push(...data.files);
+        }
+        
+        if (allItems.length > 0) {
+          allItems.forEach(file => {
+            const row = document.createElement('tr');
+            
+            const fileIcon = file.isDir ? 
+              '<i class="fas fa-folder"></i>' : 
+              getFileIcon(file.contentType);
+            
+            const fileType = file.isDir ? '文件夹' : getFileType(file.contentType);
+            const fileSize = file.isDir ? '-' : formatFileSize(file.size);
+            
+            row.innerHTML = `
+              <td>
+                <div class="file-name">
+                  <div class="file-icon ${file.isDir ? 'folder' : 'file'}">
+                    ${fileIcon}
+                  </div>
+                  <div class="file-info">
+                    <div class="file-title">${file.name}</div>
+                  </div>
+                </div>
+              </td>
+              <td class="file-size">${fileSize}</td>
+              <td class="file-type">${fileType}</td>
+              <td class="file-date">${formatDate(file.modTime)}</td>
+              <td>
+                <div class="file-actions">
+                  <button class="action-btn" title="分享" onclick="shareFile('${file.path}', ${file.id}, ${file.isDir})">
+                    <i class="fas fa-share-alt"></i>
+                  </button>
+                  ${isImageFile(file.name) ? `<button class="action-btn" title="图床链接" onclick="getImageDirectLink(${file.id}, '${file.name}')">
+                    <i class="fas fa-image"></i>
+                  </button>` : ''}
+                  <button class="action-btn" title="下载" onclick="downloadFile('${file.path}')">
+                    <i class="fas fa-download"></i>
+                  </button>
+                  <button class="action-btn" title="删除" onclick="deleteFile('${file.path}')">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </div>
+              </td>
+            `;
+            
+            // 添加双击事件
+            if (file.isDir) {
+              row.addEventListener('dblclick', () => {
+                navigateToFolder(file.path);
+              });
+            }
+            
+            tbody.appendChild(row);
+          });
+          
+          // 更新文件数量
+          document.querySelector('.content-subtitle').textContent = `共 ${data.length} 个文件`;
+        } else {
+          tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 20px;">此文件夹为空</td></tr>';
+          document.querySelector('.content-subtitle').textContent = '共 0 个文件';
+        }
+      } catch (error) {
+        console.error('获取文件列表失败:', error);
+        document.getElementById('file-table-body').innerHTML = 
+          '<tr><td colspan="5" style="text-align: center; padding: 20px; color: red;">加载文件列表失败</td></tr>';
+      }
+    }
+
+    // 获取文件图标
+    function getFileIcon(contentType) {
+      if (contentType.startsWith('image/')) {
+        return '<i class="fas fa-image"></i>';
+      } else if (contentType.startsWith('video/')) {
+        return '<i class="fas fa-video"></i>';
+      } else if (contentType.startsWith('audio/')) {
+        return '<i class="fas fa-music"></i>';
+      } else if (contentType.includes('pdf')) {
+        return '<i class="fas fa-file-pdf"></i>';
+      } else if (contentType.includes('text') || contentType.includes('json')) {
+        return '<i class="fas fa-file-alt"></i>';
+      } else if (contentType.includes('zip') || contentType.includes('rar')) {
+        return '<i class="fas fa-file-archive"></i>';
+      } else {
+        return '<i class="fas fa-file"></i>';
+      }
+    }
+
+    // 获取文件类型
+    function getFileType(contentType) {
+      if (contentType.startsWith('image/')) {
+        return '图片';
+      } else if (contentType.startsWith('video/')) {
+        return '视频';
+      } else if (contentType.startsWith('audio/')) {
+        return '音频';
+      } else if (contentType.includes('pdf')) {
+        return 'PDF文档';
+      } else if (contentType.includes('text')) {
+        return '文本文件';
+      } else if (contentType.includes('zip') || contentType.includes('rar')) {
+        return '压缩文件';
+      } else {
+        return '文件';
+      }
+    }
+
+    // 导航到文件夹
+    function navigateToFolder(path) {
+      currentPath = path;
+      loadFiles(path);
+      updateBreadcrumb(path);
+      
+      // 更新文件夹树的选中状态
+      document.querySelectorAll('.folder-item').forEach(item => {
+        item.classList.remove('active');
+      });
+      
+      const activeItem = document.querySelector(`[data-path="${path}"]`);
+      if (activeItem) {
+        activeItem.classList.add('active');
+      }
+    }
+
+    // 更新面包屑导航
+    function updateBreadcrumb(path) {
+      // 这里可以添加面包屑导航的更新逻辑
+      console.log('当前路径:', path);
+    }
+
+    // 文件操作函数
+    async function shareFile(path, fileId, isDir) {
+      try {
+        // 直接使用传入的文件ID，不需要再查找
+        if (!fileId) {
+          alert('无法找到要分享的文件或目录');
+          return;
+        }
+        
+        // 显示分享时间选择对话框
+        const expireDays = await showShareTimeDialog();
+        if (expireDays === null) {
+          return; // 用户取消了分享
+        }
+        
+        // 创建分享链接
+        const shareRequest = {
+          userId: currentUserId // 添加用户ID到请求中
+        };
+        
+        if (expireDays === 0) {
+          shareRequest.forever = true;
+        } else {
+          shareRequest.expireDays = expireDays;
+        }
+        
+        shareRequest.isPublic = true;
+        
+        if (isDir) {
+          shareRequest.directoryId = fileId;
+        } else {
+          shareRequest.fileId = fileId;
+        }
+        
+        const shareResponse = await fetch('/api/shares/create', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(shareRequest)
+        });
+        
+        if (shareResponse.ok) {
+          const shareData = await shareResponse.json();
+          const shareUrl = window.location.origin + shareData.page;
+          
+          // 复制到剪贴板
+          if (navigator.clipboard) {
+            await navigator.clipboard.writeText(shareUrl);
+            if (shareData.isPermanent) {
+              alert('分享链接已复制到剪贴板:\n' + shareUrl + '\n\n永久有效');
+            } else {
+              alert('分享链接已复制到剪贴板:\n' + shareUrl + '\n\n过期时间: ' + shareData.expireAt);
+            }
+          } else {
+            // 降级方案
+            const textArea = document.createElement('textarea');
+            textArea.value = shareUrl;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            if (shareData.isPermanent) {
+              alert('分享链接已复制到剪贴板:\n' + shareUrl + '\n\n永久有效');
+            } else {
+              alert('分享链接已复制到剪贴板:\n' + shareUrl + '\n\n过期时间: ' + shareData.expireAt);
+            }
+          }
+        } else {
+          const errorData = await shareResponse.json();
+          alert('创建分享链接失败: ' + (errorData.error || '未知错误'));
+        }
+      } catch (error) {
+        console.error('分享文件失败:', error);
+        alert('分享失败: ' + error.message);
+      }
+    }
+
+    // 显示分享时间选择对话框
+    function showShareTimeDialog() {
+      return new Promise((resolve) => {
+        const modal = document.createElement('div');
+        modal.style.cssText = `
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: rgba(0,0,0,0.5);
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          z-index: 10000;
+        `;
+        
+        const dialog = document.createElement('div');
+        dialog.style.cssText = `
+          background: white;
+          padding: 30px;
+          border-radius: 10px;
+          box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+          max-width: 400px;
+          width: 90%;
+        `;
+        
+        dialog.innerHTML = `
+          <h3 style="margin-top: 0; color: #333; text-align: center;">选择分享有效期</h3>
+          <div style="margin: 20px 0;">
+            <label style="display: block; margin: 10px 0;">
+              <input type="radio" name="expireTime" value="1" checked> 1天
+            </label>
+            <label style="display: block; margin: 10px 0;">
+              <input type="radio" name="expireTime" value="3"> 3天
+            </label>
+            <label style="display: block; margin: 10px 0;">
+              <input type="radio" name="expireTime" value="7"> 7天
+            </label>
+            <label style="display: block; margin: 10px 0;">
+              <input type="radio" name="expireTime" value="30"> 30天
+            </label>
+            <label style="display: block; margin: 10px 0;">
+              <input type="radio" name="expireTime" value="0"> 永久有效
+            </label>
+          </div>
+          <div style="text-align: center; margin-top: 20px;">
+            <button id="confirmShare" style="background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 5px; margin-right: 10px; cursor: pointer;">确认分享</button>
+            <button id="cancelShare" style="background: #6c757d; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">取消</button>
+          </div>
+        `;
+        
+        modal.appendChild(dialog);
+        document.body.appendChild(modal);
+        
+        document.getElementById('confirmShare').onclick = () => {
+          const selected = document.querySelector('input[name="expireTime"]:checked');
+          const expireDays = parseInt(selected.value);
+          document.body.removeChild(modal);
+          resolve(expireDays);
+        };
+        
+        document.getElementById('cancelShare').onclick = () => {
+          document.body.removeChild(modal);
+          resolve(null);
+        };
+        
+        modal.onclick = (e) => {
+          if (e.target === modal) {
+            document.body.removeChild(modal);
+            resolve(null);
+          }
+        };
+      });
+    }
+
+    function downloadFile(path) {
+      window.open(`/api/files/download?userId=${currentUserId}&path=${encodeURIComponent(path)}`);
+    }
+
+    function deleteFile(path) {
+      if (confirm('确定要删除这个文件吗？')) {
+        console.log('删除文件:', path);
+        fetch(`/api/files/delete?userId=${currentUserId}&path=${encodeURIComponent(path)}`, {
+          method: 'DELETE'
+        }).then(response => {
+          console.log('删除响应状态:', response.status);
+          if (response.ok) {
+            return response.json().then(data => {
+              console.log('删除成功:', data);
+              alert('删除成功');
+              loadFiles(currentPath);
+              loadStorageInfo();
+            });
+          } else {
+            return response.json().then(data => {
+              console.error('删除失败响应:', data);
+              alert('删除失败: ' + (data.error || '未知错误'));
+            }).catch(() => {
+              console.error('删除失败，状态码:', response.status);
+              alert('删除失败，状态码: ' + response.status);
+            });
+          }
+        }).catch(error => {
+          console.error('删除文件网络错误:', error);
+          alert('删除失败: 网络错误');
+        });
+      }
+    }
+
+    // 上传文件
+    document.getElementById('btn-upload').addEventListener('click', () => {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.multiple = true;
+      input.onchange = (e) => {
+        const files = e.target.files;
+        if (files.length > 0) {
+          uploadFiles(files);
+        }
+      };
+      input.click();
+    });
+
+    // 上传文件函数
+    async function uploadFiles(files) {
+      for (let file of files) {
+        const formData = new FormData();
+        formData.append('file', file);  // 后端期望的字段名是 'file'
+        formData.append('path', currentPath);
+        
+        try {
+          const response = await fetch('/api/files/upload', {
+            method: 'POST',
+            body: formData
+          });
+          
+          if (!response.ok) {
+            const errorData = await response.json();
+            console.error('上传失败:', errorData);
+            alert(`上传文件 ${file.name} 失败: ${errorData.error || '未知错误'}`);
+          } else {
+            console.log(`文件 ${file.name} 上传成功`);
+          }
+        } catch (error) {
+          console.error('上传失败:', error);
+          alert(`上传文件 ${file.name} 失败: ${error.message}`);
+        }
+      }
+      
+      // 上传完成后刷新文件列表
+      loadFiles(currentPath);
+      loadStorageInfo();
+      loadFolderTree();
+    }
+
+    // 新建文件夹
+    document.getElementById('btn-new-folder').addEventListener('click', async () => {
+      const folderName = prompt('请输入文件夹名称:');
+      if (folderName && folderName.trim()) {
+        try {
+          const response = await fetch('/api/directories/create', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              name: folderName.trim(),
+              parentPath: currentPath
+            })
+          });
+          
+          if (response.ok) {
+            const result = await response.json();
+            console.log('文件夹创建成功:', result);
+            loadFiles(currentPath);
+            loadStorageInfo();
+            loadFolderTree();
+            alert('文件夹创建成功');
+          } else {
+            const errorData = await response.json();
+            console.error('创建失败:', errorData);
+            alert(`文件夹创建失败: ${errorData.error || '未知错误'}`);
+          }
+        } catch (error) {
+          console.error('创建文件夹失败:', error);
+          alert(`文件夹创建失败: ${error.message}`);
+        }
+      }
+    });
+
+    // 获取图床直链
+    async function getImageDirectLink(fileId, fileName) {
+      try {
+        const directUrl = `${window.location.origin}/api/image/${fileId}`;
+        
+        // 创建对话框显示链接
+        const dialog = document.createElement('div');
+        dialog.style.cssText = `
+          position: fixed;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          background: white;
+          padding: 20px;
+          border-radius: 10px;
+          box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+          z-index: 10000;
+          min-width: 400px;
+          max-width: 600px;
+        `;
+        
+        dialog.innerHTML = `
+          <h3 style="margin-top: 0; color: #333;">图床链接 - ${fileName}</h3>
+          <div style="margin: 15px 0;">
+            <label style="display: block; margin-bottom: 5px; font-weight: bold;">直链地址:</label>
+            <input type="text" id="directLinkInput" value="${directUrl}" readonly 
+                   style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-family: monospace;">
+          </div>
+          <div style="margin: 15px 0;">
+            <label style="display: block; margin-bottom: 5px; font-weight: bold;">预览:</label>
+            <img src="${directUrl}" alt="${fileName}" style="max-width: 100%; max-height: 200px; border: 1px solid #ddd; border-radius: 4px;">
+          </div>
+          <div style="text-align: right; margin-top: 20px;">
+            <button id="copyDirectLink" style="background: #007bff; color: white; border: none; padding: 8px 16px; border-radius: 4px; margin-right: 10px; cursor: pointer;">复制链接</button>
+            <button id="closeDirectDialog" style="background: #6c757d; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">关闭</button>
+          </div>
+        `;
+        
+        // 创建遮罩层
+        const overlay = document.createElement('div');
+        overlay.style.cssText = `
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: rgba(0,0,0,0.5);
+          z-index: 9999;
+        `;
+        
+        document.body.appendChild(overlay);
+        document.body.appendChild(dialog);
+        
+        // 复制链接功能
+        document.getElementById('copyDirectLink').onclick = () => {
+          const input = document.getElementById('directLinkInput');
+          input.select();
+          document.execCommand('copy');
+          alert('链接已复制到剪贴板！');
+        };
+        
+        // 关闭对话框
+        const closeDialog = () => {
+          document.body.removeChild(overlay);
+          document.body.removeChild(dialog);
+        };
+        
+        document.getElementById('closeDirectDialog').onclick = closeDialog;
+        overlay.onclick = closeDialog;
+        
+      } catch (error) {
+        console.error('获取图床链接失败:', error);
+        alert('获取图床链接失败: ' + error.message);
+      }
+    }
+
+    // 设置功能
+    const settings = {
+      theme: 'light',
+      viewMode: 'list',
+      autoRefreshUpload: true,
+      maxFileSize: 100,
+      defaultShareExpire: 7,
+      sharePasswordRequired: false,
+      autoCopyImageLink: false,
+      imageQuality: 'high'
+    };
+
+    // 加载设置
+    function loadSettings() {
+      const savedSettings = localStorage.getItem('hqyun-settings');
+      if (savedSettings) {
+        Object.assign(settings, JSON.parse(savedSettings));
+      }
+      applySettings();
+    }
+
+    // 应用设置
+    function applySettings() {
+      // 应用主题
+      document.documentElement.setAttribute('data-theme', settings.theme);
+      
+      // 更新设置界面的值
+      document.getElementById('theme-select').value = settings.theme;
+      document.getElementById('view-mode-select').value = settings.viewMode;
+      document.getElementById('auto-refresh-upload').checked = settings.autoRefreshUpload;
+      document.getElementById('max-file-size').value = settings.maxFileSize;
+      document.getElementById('default-share-expire').value = settings.defaultShareExpire;
+      document.getElementById('share-password-required').checked = settings.sharePasswordRequired;
+      document.getElementById('auto-copy-image-link').checked = settings.autoCopyImageLink;
+      document.getElementById('image-quality').value = settings.imageQuality;
+    }
+
+    // 保存设置
+    function saveSettings() {
+      settings.theme = document.getElementById('theme-select').value;
+      settings.viewMode = document.getElementById('view-mode-select').value;
+      settings.autoRefreshUpload = document.getElementById('auto-refresh-upload').checked;
+      settings.maxFileSize = parseInt(document.getElementById('max-file-size').value);
+      settings.defaultShareExpire = parseInt(document.getElementById('default-share-expire').value);
+      settings.sharePasswordRequired = document.getElementById('share-password-required').checked;
+      settings.autoCopyImageLink = document.getElementById('auto-copy-image-link').checked;
+      settings.imageQuality = document.getElementById('image-quality').value;
+      
+      localStorage.setItem('hqyun-settings', JSON.stringify(settings));
+      applySettings();
+      
+      // 关闭设置弹窗
+      document.getElementById('settings-modal').style.display = 'none';
+      alert('设置已保存！');
+    }
+
+    // 重置设置
+    function resetSettings() {
+      if (confirm('确定要重置所有设置为默认值吗？')) {
+        localStorage.removeItem('hqyun-settings');
+        Object.assign(settings, {
+          theme: 'light',
+          viewMode: 'list',
+          autoRefreshUpload: true,
+          maxFileSize: 100,
+          defaultShareExpire: 7,
+          sharePasswordRequired: false,
+          autoCopyImageLink: false,
+          imageQuality: 'high'
+        });
+        applySettings();
+        alert('设置已重置为默认值！');
+      }
+    }
+
+    // 清理缓存
+    function clearCache() {
+      if (confirm('确定要清理缓存吗？这将清除所有本地存储的数据。')) {
+        localStorage.clear();
+        sessionStorage.clear();
+        alert('缓存已清理！页面将刷新。');
+        location.reload();
+      }
+    }
+
+    // 设置按钮事件
+    document.getElementById('btn-settings').addEventListener('click', () => {
+      document.getElementById('settings-modal').style.display = 'block';
+      loadSettings();
+    });
+
+    // 关闭设置弹窗
+    document.getElementById('close-settings').addEventListener('click', () => {
+      document.getElementById('settings-modal').style.display = 'none';
+    });
+
+    // 点击遮罩层关闭弹窗
+    document.querySelector('.modal-overlay').addEventListener('click', () => {
+      document.getElementById('settings-modal').style.display = 'none';
+    });
+
+    // 保存设置按钮
+    document.getElementById('save-settings').addEventListener('click', saveSettings);
+
+    // 重置设置按钮
+    document.getElementById('reset-settings').addEventListener('click', resetSettings);
+
+    // 清理缓存按钮
+    document.getElementById('clear-cache').addEventListener('click', clearCache);
+
+    // 修改图床链接功能，支持多种链接格式
+    async function getImageDirectLink(fileId, fileName) {
+      try {
+        const directUrl = `${window.location.origin}/api/image/${fileId}`;
+        
+        // 生成各种格式的链接
+        const linkFormats = {
+          direct: directUrl,
+          markdown: `![${fileName}](${directUrl})`,
+          html: `<img src="${directUrl}" alt="${fileName}" />`,
+          bbcode: `[img]${directUrl}[/img]`,
+          forum: `[IMG]${directUrl}[/IMG]`,
+          textile: `!${directUrl}(${fileName})!`,
+          mediawiki: `[[File:${directUrl}|${fileName}]]`,
+          rst: `.. image:: ${directUrl}\n   :alt: ${fileName}`
+        };
+        
+        // 如果设置了自动复制，直接复制原始链接并提示
+        if (settings.autoCopyImageLink) {
+          if (navigator.clipboard) {
+            await navigator.clipboard.writeText(directUrl);
+            alert(`图床链接已复制到剪贴板！\n${directUrl}`);
+            return;
+          }
+        }
+        
+        // 显示多格式链接对话框
+        const dialog = document.createElement('div');
+        dialog.style.cssText = `
+          position: fixed;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          background: var(--bg-card);
+          color: var(--text-primary);
+          padding: 25px;
+          border-radius: 12px;
+          box-shadow: var(--shadow-lg);
+          z-index: 10000;
+          min-width: 500px;
+          max-width: 700px;
+          max-height: 80vh;
+          overflow-y: auto;
+        `;
+        
+        dialog.innerHTML = `
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 15px;">
+            <h3 style="margin: 0; color: var(--text-primary); font-size: 18px;">图床链接 - ${fileName}</h3>
+            <button id="closeImageDialog" style="background: none; border: none; font-size: 24px; cursor: pointer; color: var(--text-secondary); padding: 0; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border-radius: 50%;">×</button>
+          </div>
+          
+          <div style="margin-bottom: 20px;">
+            <img src="${directUrl}" alt="${fileName}" style="max-width: 100%; max-height: 200px; border: 1px solid var(--border); border-radius: 8px; display: block; margin: 0 auto;">
+          </div>
+          
+          <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
+            <button class="format-tab active" data-format="direct" style="padding: 8px 16px; border: 1px solid var(--primary); background: var(--primary); color: white; border-radius: 6px; cursor: pointer; font-size: 14px;">原始链接</button>
+            <button class="format-tab" data-format="markdown" style="padding: 8px 16px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-primary); border-radius: 6px; cursor: pointer; font-size: 14px;">Markdown</button>
+            <button class="format-tab" data-format="html" style="padding: 8px 16px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-primary); border-radius: 6px; cursor: pointer; font-size: 14px;">HTML</button>
+            <button class="format-tab" data-format="bbcode" style="padding: 8px 16px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-primary); border-radius: 6px; cursor: pointer; font-size: 14px;">BBCode</button>
+            <button class="format-tab" data-format="forum" style="padding: 8px 16px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-primary); border-radius: 6px; cursor: pointer; font-size: 14px;">论坛代码</button>
+            <button class="format-tab" data-format="textile" style="padding: 8px 16px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-primary); border-radius: 6px; cursor: pointer; font-size: 14px;">Textile</button>
+          </div>
+          
+          <div style="margin-bottom: 20px;">
+            <textarea id="linkOutput" readonly style="width: 100%; height: 80px; padding: 12px; border: 1px solid var(--border); border-radius: 6px; font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace; font-size: 13px; background: var(--bg-secondary); color: var(--text-primary); resize: vertical;">${directUrl}</textarea>
+          </div>
+          
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div style="font-size: 12px; color: var(--text-muted);">
+              点击格式标签切换不同的链接格式
+            </div>
+            <div style="display: flex; gap: 10px;">
+              <button id="copyLinkBtn" style="background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-size: 14px;">复制链接</button>
+              <button id="closeDialogBtn" style="background: var(--secondary); color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-size: 14px;">关闭</button>
+            </div>
+          </div>
+        `;
+        
+        const overlay = document.createElement('div');
+        overlay.style.cssText = `
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: rgba(0,0,0,0.5);
+          z-index: 9999;
+        `;
+        
+        document.body.appendChild(overlay);
+        document.body.appendChild(dialog);
+        
+        // 格式切换功能
+        const formatTabs = dialog.querySelectorAll('.format-tab');
+        const linkOutput = dialog.querySelector('#linkOutput');
+        let currentFormat = 'direct';
+        
+        formatTabs.forEach(tab => {
+          tab.addEventListener('click', () => {
+            // 更新按钮样式
+            formatTabs.forEach(t => {
+              t.style.background = 'var(--bg-card)';
+              t.style.color = 'var(--text-primary)';
+              t.style.border = '1px solid var(--border)';
+              t.classList.remove('active');
+            });
+            tab.style.background = 'var(--primary)';
+            tab.style.color = 'white';
+            tab.style.border = '1px solid var(--primary)';
+            tab.classList.add('active');
+            
+            // 更新链接内容
+            currentFormat = tab.dataset.format;
+            linkOutput.value = linkFormats[currentFormat];
+          });
+        });
+        
+        // 复制功能
+        document.getElementById('copyLinkBtn').onclick = async () => {
+          try {
+            if (navigator.clipboard) {
+              await navigator.clipboard.writeText(linkOutput.value);
+              // 临时改变按钮文字提示复制成功
+              const btn = document.getElementById('copyLinkBtn');
+              const originalText = btn.textContent;
+              btn.textContent = '已复制！';
+              btn.style.background = 'var(--secondary)';
+              setTimeout(() => {
+                btn.textContent = originalText;
+                btn.style.background = 'var(--primary)';
+              }, 1500);
+            } else {
+              // 降级方案
+              linkOutput.select();
+              document.execCommand('copy');
+              alert('链接已复制到剪贴板！');
+            }
+          } catch (error) {
+            console.error('复制失败:', error);
+            alert('复制失败，请手动选择复制');
+          }
+        };
+        
+        const closeDialog = () => {
+          document.body.removeChild(overlay);
+          document.body.removeChild(dialog);
+        };
+        
+        document.getElementById('closeDialogBtn').onclick = closeDialog;
+        document.getElementById('closeImageDialog').onclick = closeDialog;
+        overlay.onclick = closeDialog;
+        
+        // ESC键关闭
+        const handleKeyDown = (e) => {
+          if (e.key === 'Escape') {
+            closeDialog();
+            document.removeEventListener('keydown', handleKeyDown);
+          }
+        };
+        document.addEventListener('keydown', handleKeyDown);
+        
+      } catch (error) {
+        console.error('获取图床链接失败:', error);
+        alert('获取图床链接失败: ' + error.message);
+      }
+    }
+
+    // 页面加载完成后初始化
+    document.addEventListener('DOMContentLoaded', () => {
+      // 首先检查管理员认证
+      if (!checkAdminAuth()) {
+        return; // 如果认证失败，会自动跳转到登录页面
+      }
+      
+      // 显示管理员信息
+      const adminInfo = getAdminInfo();
+      document.getElementById('admin-username').textContent = adminInfo.username;
+      
+      // 初始化页面功能
+      loadStorageInfo();
+      loadFiles(currentPath);
+      loadFolderTree();
+      loadSettings(); // 加载设置
+    });
+  </script>
+</body>
+</html>
