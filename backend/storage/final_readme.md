@@ -1,0 +1,398 @@
+# H-Cloud Drive 🌤️
+
+一个基于 Go + SQLite 的轻量级云盘系统，支持文件上传、下载、分享和管理功能。
+
+## ✨ 功能特性
+
+### 🔐 用户系统
+- 用户注册、登录、JWT 认证
+- 管理员登录系统
+- 安全的密码加密存储
+
+### 📁 文件管理
+- 文件上传、下载、删除
+- 文件夹创建、管理
+- 文件预览（图片、文本等）
+- 批量操作支持
+
+### 🔗 分享功能
+- 文件/文件夹分享链接生成
+- 分享权限控制（公开/私密）
+- 分享链接过期时间设置
+- 访问密码保护
+
+### 🖼️ 图床功能
+- 图片直链生成
+- 多种图片格式支持
+- 图片压缩和优化
+
+### 🎨 用户界面
+- 现代化响应式设计
+- 深色/浅色主题切换
+- 拖拽上传支持
+- 移动端友好
+
+### ⚙️ 系统管理
+- 管理员后台
+- 系统信息监控
+- 用户管理
+- 存储空间统计
+
+## 🚀 快速开始
+
+### 环境要求
+
+- Go 1.19+
+- SQLite 3
+- 现代浏览器
+
+### 安装部署
+
+#### 1. 克隆项目
+
+```bash
+git clone https://github.com/huanhq99/H-Cloud.git
+cd HQyun
+```
+
+#### 2. 后端部署
+
+```bash
+cd backend
+
+# 安装依赖
+go mod tidy
+
+# 运行服务
+go run cmd/server/main.go
+```
+
+服务将在 `http://localhost:8080` 启动
+
+#### 3. Docker 部署
+
+##### 使用 Docker Hub 镜像 (推荐)
+
+```bash
+# 1. 创建数据目录
+mkdir -p data storage
+
+# 2. 直接运行容器
+docker run -d \
+  --name h-cloud \
+  -p 8080:8080 \
+  -v $(pwd)/data:/data \
+  -v $(pwd)/storage:/app/storage \
+  -e ADMIN_USERNAME=admin \
+  -e ADMIN_PASSWORD=your_secure_password \
+  -e JWT_SECRET=your_jwt_secret_key \
+  --restart unless-stopped \
+  huanhq99/h-cloud:latest
+
+# 3. 查看容器状态
+docker ps
+
+# 4. 查看日志
+docker logs -f h-cloud
+```
+
+##### Docker Compose 部署
+
+创建 `docker-compose.yml` 文件：
+
+```yaml
+services:
+  h-cloud:
+    # 使用版本标签确保部署一致性
+    image: huanhq99/h-cloud:v0.0.1
+    container_name: h-cloud
+    ports:
+      - "8080:8080"
+    environment:
+      - ADMIN_USERNAME=${ADMIN_USERNAME:-admin}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin123}
+      - JWT_SECRET=${JWT_SECRET:-your_jwt_secret_key_here_at_least_32_characters}
+      - GIN_MODE=${GIN_MODE:-release}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+    volumes:
+      - ./data:/data
+      - ./storage:/app/storage
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+```
+
+部署步骤：
+
+```bash
+# 1. 克隆项目
+git clone https://github.com/huanhq99/H-Cloud.git
+cd H-Cloud
+
+# 2. 创建数据目录
+mkdir -p data storage
+
+# 3. 直接启动服务
+docker compose up -d
+
+# 4. 查看服务状态
+docker compose ps
+
+# 5. 查看日志
+docker compose logs -f h-cloud
+```
+
+##### 自定义配置部署
+
+```bash
+# 1. 复制配置文件模板
+cp .env.example .env
+
+# 2. 编辑配置文件
+nano .env
+```
+
+配置文件内容：
+```bash
+# 服务端口
+PORT=8080
+
+# 管理员账号配置
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=your_secure_password_here
+
+# JWT 密钥 (生产环境必须修改)
+JWT_SECRET=your_jwt_secret_key_here
+
+# 数据目录映射
+DATA_DIR=./data
+STORAGE_DIR=./storage
+```
+
+```bash
+# 3. 启动服务
+docker compose up -d
+```
+
+##### 生产环境部署
+
+使用提供的一键部署脚本：
+
+```bash
+# 1. 给脚本执行权限
+chmod +x deploy.sh
+
+# 2. 运行部署脚本
+./deploy.sh
+
+# 脚本会自动：
+# - 检查 Docker 环境
+# - 创建必要目录
+# - 生成配置文件
+# - 启动服务
+# - 检查健康状态
+```
+
+##### 常用管理命令
+
+```bash
+# 启动服务
+docker compose up -d
+
+# 停止服务
+docker compose down
+
+# 重启服务
+docker compose restart
+
+# 查看日志
+docker compose logs -f h-cloud
+
+# 更新镜像
+docker compose pull
+docker compose up -d
+
+# 进入容器
+docker compose exec h-cloud sh
+
+# 备份数据
+tar -czf backup-$(date +%Y%m%d).tar.gz data storage
+
+# 清理无用镜像
+docker image prune -f
+```
+
+### 访问应用
+
+部署完成后，可以通过以下地址访问：
+
+- **管理员登录**: http://localhost:8080/login.html
+- **API 文档**: http://localhost:8080/api.html
+- **文件分享页面**: http://localhost:8080/share.html
+- **后端 API**: http://localhost:8080/api/
+
+### 默认管理员账号
+
+- 用户名: `admin`
+- 密码: `password`
+
+> ⚠️ **安全提醒**: 首次部署后请立即修改默认密码！
+
+## 📖 配置说明
+
+### 环境变量配置
+
+```bash
+# 管理员账号配置
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=your_secure_password
+
+# 数据库配置
+DB_PATH=./hqyun.db
+
+# 服务器配置
+SERVER_PORT=8080
+SERVER_HOST=0.0.0.0
+
+# JWT 配置
+JWT_SECRET=your_jwt_secret_key
+```
+
+### 配置文件
+
+编辑 `backend/configs/config.yaml`:
+
+```yaml
+server:
+  port: 8080
+  host: "0.0.0.0"
+
+database:
+  type: sqlite
+  host: sqlite
+  port: 0
+  name: hqyun.db
+  user: ""
+  password: ""
+
+storage:
+  path: "./local_storage"
+  max_file_size: 104857600  # 100MB
+
+admin:
+  username: "admin"
+  password: "password"
+```
+
+## 🔧 API 接口
+
+详细的 API 文档请参考：[API.md](API.md)
+
+### 主要接口概览
+
+#### 认证接口
+- `POST /api/auth/register` - 用户注册
+- `POST /api/auth/login` - 用户登录
+- `GET /api/auth/me` - 获取当前用户信息
+
+#### 管理员接口
+- `POST /api/admin/login` - 管理员登录
+- `POST /api/admin/logout` - 管理员登出
+- `GET /api/admin/me` - 获取管理员信息
+
+#### 文件管理接口
+- `POST /api/files/upload` - 文件上传
+- `GET /api/files/download/:id` - 文件下载
+- `DELETE /api/files/:id` - 删除文件
+- `GET /api/files/list` - 文件列表
+
+#### 分享接口
+- `POST /api/shares/create` - 创建分享链接
+- `GET /api/shares/access/:uuid` - 访问分享内容
+- `DELETE /api/shares/:uuid` - 删除分享
+
+## 🏗️ 项目结构
+
+```
+HQyun/
+├── backend/                 # 后端服务
+│   ├── cmd/server/         # 服务入口
+│   ├── internal/           # 内部模块
+│   │   ├── api/           # API 控制器
+│   │   ├── config/        # 配置管理
+│   │   ├── database/      # 数据库操作
+│   │   ├── model/         # 数据模型
+│   │   └── storage/       # 存储管理
+│   ├── public/            # 静态文件
+│   └── configs/           # 配置文件
+├── frontend/              # 前端资源
+└── docker-compose.yml     # Docker 配置
+```
+
+## 🔒 安全特性
+
+- JWT Token 认证
+- 密码 bcrypt 加密
+- 文件访问权限控制
+- 分享链接权限验证
+- XSS 和 CSRF 防护
+- 文件类型安全检查
+
+## 🌟 技术栈
+
+### 后端
+- **Go**: 高性能后端服务
+- **Gin**: Web 框架
+- **GORM**: ORM 数据库操作
+- **SQLite**: 轻量级数据库
+- **JWT**: 身份认证
+
+### 前端
+- **HTML5/CSS3**: 现代化界面
+- **JavaScript**: 交互逻辑
+- **响应式设计**: 多设备适配
+
+## 📝 开发指南
+
+### 本地开发
+
+1. 克隆项目并进入目录
+2. 安装 Go 依赖: `go mod tidy`
+3. 运行开发服务器: `go run cmd/server/main.go`
+4. 访问 `http://localhost:8080`
+
+### 代码规范
+
+- 遵循 Go 官方代码规范
+- 使用 `gofmt` 格式化代码
+- 编写单元测试
+- 提交前运行 `go vet` 检查
+
+## 🤝 贡献指南
+
+1. Fork 本项目
+2. 创建特性分支: `git checkout -b feature/amazing-feature`
+3. 提交更改: `git commit -m 'Add amazing feature'`
+4. 推送分支: `git push origin feature/amazing-feature`
+5. 提交 Pull Request
+
+## 📄 许可证
+
+本项目采用 MIT 许可证 - 查看 [LICENSE](LICENSE) 文件了解详情
+
+## 🙏 致谢
+
+感谢所有为这个项目做出贡献的开发者！
+
+## 📞 联系方式
+
+- 项目地址: [https://github.com/huanhq99/H-Cloud](https://github.com/huanhq99/H-Cloud)
+- 问题反馈: [Issues](https://github.com/huanhq99/H-Cloud/issues)
+
+---
+
+⭐ 如果这个项目对你有帮助，请给它一个 Star！

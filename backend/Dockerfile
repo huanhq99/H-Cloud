@@ -1,6 +1,6 @@
 # 多架构支持的Dockerfile
 # syntax=docker/dockerfile:1
-FROM golang:1.24-alpine AS builder
+FROM --platform=$BUILDPLATFORM golang:1.24-alpine AS builder
 
 WORKDIR /app
 
@@ -8,17 +8,18 @@ WORKDIR /app
 RUN apk --no-cache add gcc musl-dev sqlite-dev
 
 # 复制go mod和sum文件
-COPY go.mod go.sum ./
+COPY backend/go.mod backend/go.sum ./
 RUN go mod download
 
 # 复制源代码
-COPY . .
+COPY backend/ .
 
 # 编译（启用CGO以支持SQLite，支持多架构）
-RUN CGO_ENABLED=1 go build -o h-cloud-server ./cmd/server
+ARG TARGETOS TARGETARCH
+RUN CGO_ENABLED=1 GOOS=$TARGETOS GOARCH=$TARGETARCH go build -o h-cloud-server ./cmd/server
 
 # 最终镜像
-FROM alpine:3.18
+FROM --platform=$TARGETPLATFORM alpine:3.18
 
 WORKDIR /app
 

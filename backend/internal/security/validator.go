@@ -87,15 +87,28 @@ func ValidateFilePath(path string) error {
 		return errors.New("检测到路径遍历攻击")
 	}
 
-	// 检查绝对路径（除了根目录）
+	// 对于绝对路径，检查是否以 / 开头（这是正常的目录路径）
 	if filepath.IsAbs(path) {
-		return errors.New("不允许使用绝对路径")
+		// 在Unix系统中，以 / 开头的路径是正常的
+		// 但要确保不包含危险的路径组件
+		if !strings.HasPrefix(path, "/") {
+			return errors.New("不允许使用非Unix风格的绝对路径")
+		}
 	}
 
-	// 清理路径
+	// 清理路径并检查是否包含危险组件
 	cleanPath := filepath.Clean(path)
-	if cleanPath != path {
-		return errors.New("路径格式不正确")
+	
+	// 检查清理后的路径是否包含 .. 组件（表示路径遍历）
+	pathParts := strings.Split(cleanPath, string(filepath.Separator))
+	for _, part := range pathParts {
+		if part == ".." {
+			return errors.New("检测到路径遍历攻击")
+		}
+		// 检查空组件（除了根路径的第一个空组件）
+		if part == "" && cleanPath != "/" {
+			continue // 允许连续的斜杠，它们会被清理
+		}
 	}
 
 	return nil

@@ -1,0 +1,140 @@
+name: Release H-Cloud
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: '版本号 (例如: v1.2.4)'
+        required: true
+        type: string
+
+env:
+  DOCKER_USERNAME: huanhq99
+  DOCKER_REPO: h-cloud
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+      
+    - name: Login to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ env.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+        
+    - name: Extract version
+      id: version
+      run: |
+        if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+          VERSION="${{ github.event.inputs.version }}"
+        else
+          VERSION=${GITHUB_REF#refs/tags/}
+        fi
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+        echo "build_date=$(date +%Y-%m-%d)" >> $GITHUB_OUTPUT
+        
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: ./amd64-dockerfile
+        platforms: linux/amd64
+        push: true
+        tags: |
+          ${{ env.DOCKER_USERNAME }}/${{ env.DOCKER_REPO }}:${{ steps.version.outputs.version }}
+          ${{ env.DOCKER_USERNAME }}/${{ env.DOCKER_REPO }}:latest
+        build-args: |
+          VERSION=${{ steps.version.outputs.version }}
+          BUILD_DATE=${{ steps.version.outputs.build_date }}
+          
+    - name: Create GitHub Release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ steps.version.outputs.version }}
+        release_name: Release ${{ steps.version.outputs.version }}
+        body: |
+          ## 🚀 H-Cloud ${{ steps.version.outputs.version }}
+          
+          ### 📦 Docker 镜像
+          ```bash
+          docker pull ${{ env.DOCKER_USERNAME }}/${{ env.DOCKER_REPO }}:${{ steps.version.outputs.version }}
+          docker pull ${{ env.DOCKER_USERNAME }}/${{ env.DOCKER_REPO }}:latest
+          ```
+          
+          ### 🔧 部署方式
+          
+          #### 使用 Docker Compose
+          ```bash
+          # 下载 docker-compose.yml
+          wget https://raw.githubusercontent.com/huanhq99/H-Cloud/main/docker-compose.yml
+          
+          # 创建环境配置
+          cp .env.example .env
+          # 编辑 .env 文件配置管理员密码等
+          
+          # 启动服务
+          docker-compose up -d
+          ```
+          
+          #### 直接运行
+          ```bash
+          docker run -d \
+            --name h-cloud \
+            -p 8080:8080 \
+            -v ./data:/data \
+            -v ./storage:/app/storage \
+            -e ADMIN_USERNAME=admin \
+            -e ADMIN_PASSWORD=your_password \
+            ${{ env.DOCKER_USERNAME }}/${{ env.DOCKER_REPO }}:${{ steps.version.outputs.version }}
+          ```
+          
+          ### 📱 访问地址
+          - 管理员登录: http://localhost:8080/login.html
+          - API 文档: http://localhost:8080/api.html
+          
+          ### 🔄 更新说明
+          本版本包含以下更新：
+          - 版本信息API接口
+          - 文件重命名功能
+          - 系统信息统计
+          - 性能优化和bug修复
+        draft: false
+        prerelease: false
+        
+    - name: Update deployment files
+      run: |
+        # 更新 docker-compose.yml 中的版本
+        sed -i "s/image: ${DOCKER_USERNAME}\/${DOCKER_REPO}:.*/image: ${DOCKER_USERNAME}\/${DOCKER_REPO}:${{ steps.version.outputs.version }}/" docker-compose.yml
+        
+        # 提交更新
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add docker-compose.yml
+        git commit -m "Update docker-compose.yml to ${{ steps.version.outputs.version }}" || exit 0
+        git push origin main || exit 0
+        
+    - name: Verify release
+      run: |
+        echo "🔍 验证发布..."
+        
+        # 等待镜像在 Docker Hub 上可用
+        sleep 30
+        
+        # 测试拉取镜像
+        docker pull ${{ env.DOCKER_USERNAME }}/${{ env.DOCKER_REPO }}:${{ steps.version.outputs.version }}
+        
+        echo "✅ 发布验证成功！"
+        echo "📦 Docker Hub: https://hub.docker.com/r/${{ env.DOCKER_USERNAME }}/${{ env.DOCKER_REPO }}"
+        echo "🏷️  版本: ${{ steps.version.outputs.version }}"

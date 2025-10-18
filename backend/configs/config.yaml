@@ -6,8 +6,8 @@ database:
   dbname: ./hyun_disk.db
 
 storage:
-  path: /app/storage
-  mapped_path: /app/storage
+  path: ./storage
+  mapped_path: ./storage
 
 jwt:
   secret: hyun_disk_secret_key

@@ -68,12 +68,13 @@ func SetupRouter(r *gin.Engine, db *gorm.DB, cfg *config.Config) {
         ctx.File("./public/share.html")
     })
 
-    // 创建控制器
+    // 创建控制器实例
+    authController := NewAuthController(db, cfg)
     fileController := NewFileController(db)
     dirController := NewDirectoryController(db)
     shareController := NewShareController(db)
-    authController := NewAuthController(db, cfg)
     adminController := NewAdminController(cfg)
+    systemController := NewSystemController(db)
 
     // API 路由组
     api := r.Group("/api")
@@ -128,6 +129,8 @@ func SetupRouter(r *gin.Engine, db *gorm.DB, cfg *config.Config) {
 
         // 系统信息路由
         api.GET("/system/storage", GetSystemStorageInfo)
+        api.GET("/version", systemController.GetVersion)
+        api.GET("/system/info", systemController.GetSystemInfo)
 
         // 管理员相关路由
         api.POST("/admin/login", adminController.Login)

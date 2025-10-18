@@ -801,7 +801,7 @@
                     <button class="action-btn" title="编辑">
                       <i class="fas fa-edit"></i>
                     </button>
-                    <button class="action-btn" title="删除">
+                    <button class="action-btn" title="下载">
                       <i class="fas fa-trash"></i>
                     </button>
                   </div>
@@ -926,11 +926,11 @@
           <h4>系统信息</h4>
           <div class="setting-item">
             <label>版本号</label>
-            <input type="text" readonly value="v1.2.1" style="background: var(--bg-secondary); color: var(--text-muted); font-family: monospace;">
+            <input type="text" readonly id="system-version" style="background: var(--bg-secondary); color: var(--text-muted); font-family: monospace;">
           </div>
           <div class="setting-item">
             <label>构建时间</label>
-            <input type="text" readonly value="2024-10-18" style="background: var(--bg-secondary); color: var(--text-muted); font-family: monospace;">
+            <input type="text" readonly id="build-time" style="background: var(--bg-secondary); color: var(--text-muted); font-family: monospace;">
           </div>
         </div>
       </div>
@@ -1153,6 +1153,9 @@ function isImageFile(filename) {
                   </button>` : ''}
                   <button class="action-btn" title="下载" onclick="downloadFile('${file.path}')">
                     <i class="fas fa-download"></i>
+                  </button>
+                  <button class="action-btn" title="重命名" onclick="renameFile('${file.path}', '${file.name}')">
+                    <i class="fas fa-edit"></i>
                   </button>
                   <button class="action-btn" title="删除" onclick="deleteFile('${file.path}')">
                     <i class="fas fa-trash"></i>
@@ -1429,6 +1432,42 @@ function isImageFile(filename) {
         }).catch(error => {
           console.error('删除文件网络错误:', error);
           alert('删除失败: 网络错误');
+        });
+      }
+    }
+
+    function renameFile(path, currentName) {
+      const newName = prompt('请输入新的文件名:', currentName);
+      if (newName && newName !== currentName) {
+        console.log('重命名文件:', path, '新名称:', newName);
+        fetch(`/api/files/rename?path=${encodeURIComponent(path)}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            newName: newName
+          })
+        }).then(response => {
+          console.log('重命名响应状态:', response.status);
+          if (response.ok) {
+            return response.json().then(data => {
+              console.log('重命名成功:', data);
+              alert('重命名成功');
+              loadFiles(currentPath);
+            });
+          } else {
+            return response.json().then(data => {
+              console.error('重命名失败响应:', data);
+              alert('重命名失败: ' + (data.error || '未知错误'));
+            }).catch(() => {
+              console.error('重命名失败，状态码:', response.status);
+              alert('重命名失败，状态码: ' + response.status);
+            });
+          }
+        }).catch(error => {
+          console.error('重命名文件网络错误:', error);
+          alert('重命名失败: 网络错误');
         });
       }
     }
@@ -1868,6 +1907,23 @@ function isImageFile(filename) {
       }
     }
 
+    // 加载系统信息
+    async function loadSystemInfo() {
+      try {
+        const response = await fetch('/api/version');
+        if (response.ok) {
+          const data = await response.json();
+          document.getElementById('system-version').value = data.version || 'v1.2.3';
+          document.getElementById('build-time').value = data.build_time || '2024-01-01';
+        }
+      } catch (error) {
+        console.error('加载系统信息失败:', error);
+        // 设置默认值
+        document.getElementById('system-version').value = 'v1.2.3';
+        document.getElementById('build-time').value = '2024-01-01';
+      }
+    }
+
     // 页面加载完成后初始化
     document.addEventListener('DOMContentLoaded', () => {
       // 首先检查管理员认证
@@ -1884,6 +1940,7 @@ function isImageFile(filename) {
       loadFiles(currentPath);
       loadFolderTree();
       loadSettings(); // 加载设置
+      loadSystemInfo(); // 加载系统信息
     });
   </script>
 </body>
