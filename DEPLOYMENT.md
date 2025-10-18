@@ -112,9 +112,61 @@ server {
 
 ### 前置要求
 - Docker 20.10+
-- Docker Compose 2.0+
+- Docker Compose 2.0+ (可选)
 
-### 手动部署
+### 方式一：使用 Docker Hub 镜像 (推荐)
+
+#### 快速部署
+```bash
+# 1. 创建数据目录
+mkdir -p h-cloud-data/data h-cloud-data/storage
+
+# 2. 直接运行容器
+docker run -d \
+  --name h-cloud \
+  -p 8080:8080 \
+  -v $(pwd)/h-cloud-data/data:/data \
+  -v $(pwd)/h-cloud-data/storage:/app/storage \
+  -e ADMIN_USERNAME=admin \
+  -e ADMIN_PASSWORD=your_secure_password \
+  -e JWT_SECRET=your_jwt_secret_key_at_least_32_characters \
+  -e GIN_MODE=release \
+  --restart unless-stopped \
+  huanhq99/h-cloud:latest
+
+# 3. 查看容器状态
+docker ps
+
+# 4. 查看日志
+docker logs -f h-cloud
+```
+
+#### 生产环境配置
+```bash
+# 创建配置文件
+cat > h-cloud.env << EOF
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=your_very_secure_password_123!
+JWT_SECRET=your_super_secret_jwt_key_at_least_32_characters_long
+GIN_MODE=release
+LOG_LEVEL=info
+PORT=8080
+EOF
+
+# 使用配置文件运行
+docker run -d \
+  --name h-cloud \
+  -p 8080:8080 \
+  -v $(pwd)/h-cloud-data/data:/data \
+  -v $(pwd)/h-cloud-data/storage:/app/storage \
+  --env-file h-cloud.env \
+  --restart unless-stopped \
+  huanhq99/h-cloud:latest
+```
+
+### 方式二：使用 Docker Compose
+
+#### 手动部署
 
 1. 克隆项目
 ```bash

@@ -69,9 +69,34 @@ go run cmd/server/main.go
 
 服务将在 `http://localhost:8080` 启动
 
-#### 3. Docker Compose 部署 (推荐)
+#### 3. Docker 部署
 
-##### 快速部署
+##### 使用 Docker Hub 镜像 (推荐)
+
+```bash
+# 1. 创建数据目录
+mkdir -p data storage
+
+# 2. 直接运行容器
+docker run -d \
+  --name h-cloud \
+  -p 8080:8080 \
+  -v $(pwd)/data:/data \
+  -v $(pwd)/storage:/app/storage \
+  -e ADMIN_USERNAME=admin \
+  -e ADMIN_PASSWORD=your_secure_password \
+  -e JWT_SECRET=your_jwt_secret_key \
+  --restart unless-stopped \
+  huanhq99/h-cloud:latest
+
+# 3. 查看容器状态
+docker ps
+
+# 4. 查看日志
+docker logs -f h-cloud
+```
+
+##### Docker Compose 部署
 
 ```bash
 # 1. 克隆项目

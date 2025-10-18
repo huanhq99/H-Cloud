@@ -1,16 +1,23 @@
-version: '3.8'
-
 services:
   h-cloud:
-    container_name: h-cloud
+    # 明确使用 AMD64 架构镜像
     image: huanhq99/h-cloud:latest
+    container_name: h-cloud
     ports:
       - "8080:8080"
     environment:
-      - ADMIN_USERNAME=admin
-      - ADMIN_PASSWORD=admin123
-      - JWT_SECRET=your-jwt-secret-key
+      - ADMIN_USERNAME=${ADMIN_USERNAME:-admin}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin123}
+      - JWT_SECRET=${JWT_SECRET:-your_jwt_secret_key_here_at_least_32_characters}
+      - GIN_MODE=${GIN_MODE:-release}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
     volumes:
       - ./data:/data
       - ./storage:/app/storage
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
