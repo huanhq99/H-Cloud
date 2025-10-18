@@ -1,4 +1,4 @@
-module github.com/huanhq/hqyun
+module github.com/huanhq99/H-Cloud
 
 go 1.24.0
 

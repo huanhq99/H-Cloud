@@ -1,6 +1,6 @@
-# H-Yun Cloud Drive API 文档 📚
+# H-Cloud Drive API 文档 📚
 
-本文档详细描述了 H-Yun Cloud Drive 的所有 API 接口。
+本文档详细描述了 H-Cloud Drive 的所有 API 接口。
 
 ## 📋 基本信息
 
@@ -931,4 +931,4 @@ curl -X POST http://localhost:8080/api/share/create \
 
 ---
 
-📞 **API 支持**: 如有疑问请查看 [Issues](https://github.com/yourusername/HQyun/issues) 或提交问题。
+📞 **API 支持**: 如有疑问请查看 [Issues](https://github.com/huanhq99/H-Cloud/issues) 或提交问题。

@@ -1,4 +1,4 @@
-# H-Yun Cloud Drive 🌤️
+# H-Cloud Drive 🌤️
 
 一个基于 Go + SQLite 的轻量级云盘系统，支持文件上传、下载、分享和管理功能。
 
@@ -51,7 +51,7 @@
 #### 1. 克隆项目
 
 ```bash
-git clone https://github.com/yourusername/HQyun.git
+git clone https://github.com/huanhq99/H-Cloud.git
 cd HQyun
 ```
 
@@ -279,8 +279,8 @@ HQyun/
 
 ## 📞 联系方式
 
-- 项目地址: [https://github.com/yourusername/HQyun](https://github.com/yourusername/HQyun)
-- 问题反馈: [Issues](https://github.com/yourusername/HQyun/issues)
+- 项目地址: [https://github.com/huanhq99/H-Cloud](https://github.com/huanhq99/H-Cloud)
+- 问题反馈: [Issues](https://github.com/huanhq99/H-Cloud/issues)
 
 ---
 

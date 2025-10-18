@@ -1,6 +1,6 @@
 # 贡献指南 🤝
 
-感谢您对 H-Yun Cloud Drive 项目的关注！我们欢迎所有形式的贡献，包括但不限于代码、文档、测试、反馈和建议。
+感谢您对 H-Cloud Drive 项目的关注！我们欢迎所有形式的贡献，包括但不限于代码、文档、测试、反馈和建议。
 
 ## 🌟 贡献方式
 
@@ -553,7 +553,7 @@ Closes #123
 
 ### 1. 选择 Issue
 
-- 查看 [Issues](https://github.com/yourusername/HQyun/issues) 页面
+- 查看 [Issues](https://github.com/huanhq99/H-Cloud/issues) 页面
 - 选择标有 `good first issue` 的简单任务开始
 - 在 Issue 下评论表明您要处理这个问题
 
@@ -641,8 +641,8 @@ git branch -d feature/issue-123
 
 ## 📞 联系我们
 
-- **GitHub Issues**: [项目 Issues](https://github.com/yourusername/HQyun/issues)
-- **讨论区**: [GitHub Discussions](https://github.com/yourusername/HQyun/discussions)
+- **GitHub Issues**: [项目 Issues](https://github.com/huanhq99/H-Cloud/issues)
+- **讨论区**: [GitHub Discussions](https://github.com/huanhq99/H-Cloud/discussions)
 - **邮箱**: your-email@example.com
 
 ## 📄 许可证

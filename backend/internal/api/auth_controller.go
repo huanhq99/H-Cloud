@@ -5,8 +5,8 @@ import (
     "time"
 
     "github.com/gin-gonic/gin"
-    "github.com/huanhq/hqyun/internal/config"
-    "github.com/huanhq/hqyun/internal/model"
+    "github.com/huanhq99/H-Cloud/internal/config"
+    "github.com/huanhq99/H-Cloud/internal/model"
     "github.com/golang-jwt/jwt/v5"
     "golang.org/x/crypto/bcrypt"
     "gorm.io/gorm"

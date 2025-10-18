@@ -10,9 +10,9 @@ import (
 	"os"
 
 	"github.com/gin-gonic/gin"
-	"github.com/huanhq/hqyun/internal/model"
-	"github.com/huanhq/hqyun/internal/storage"
-	"github.com/huanhq/hqyun/internal/security"
+	"github.com/huanhq99/H-Cloud/internal/model"
+	"github.com/huanhq99/H-Cloud/internal/storage"
+	"github.com/huanhq99/H-Cloud/internal/security"
 	"gorm.io/gorm"
 )
 

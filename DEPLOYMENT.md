@@ -1,6 +1,6 @@
-# H-Yun Cloud Drive 部署指南 🚀
+# H-Cloud Drive 部署指南 🚀
 
-本文档详细介绍了 H-Yun Cloud Drive 的各种部署方式和配置选项。
+本文档详细介绍了 H-Cloud Drive 的各种部署方式和配置选项。
 
 ## 📋 系统要求
 
@@ -43,7 +43,7 @@ go version
 
 ```bash
 # 克隆项目
-git clone https://github.com/yourusername/HQyun.git
+git clone https://github.com/huanhq99/H-Cloud.git
 cd HQyun/backend
 
 # 安装依赖
@@ -104,7 +104,7 @@ go build -o hqyun cmd/server/main.go
 
 ```ini
 [Unit]
-Description=H-Yun Cloud Drive
+Description=H-Cloud Drive
 After=network.target
 
 [Service]
@@ -258,7 +258,7 @@ sudo systemctl start docker
 sudo systemctl enable docker
 
 # 3. 部署应用
-git clone https://github.com/yourusername/HQyun.git
+git clone https://github.com/huanhq99/H-Cloud.git
 cd HQyun
 docker-compose up -d
 
@@ -577,4 +577,4 @@ find /backup -name "hqyun_backup_*.tar.gz" -mtime +7 -delete
 
 ---
 
-📞 **需要帮助？** 请查看 [Issues](https://github.com/yourusername/HQyun/issues) 或提交新的问题报告。
+📞 **需要帮助？** 请查看 [Issues](https://github.com/huanhq99/H-Cloud/issues) 或提交新的问题报告。

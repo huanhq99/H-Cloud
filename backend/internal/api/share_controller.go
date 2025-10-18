@@ -8,8 +8,8 @@ import (
     "fmt"
 
     "github.com/gin-gonic/gin"
-    "github.com/huanhq/hqyun/internal/model"
-    "github.com/huanhq/hqyun/internal/storage"
+    "github.com/huanhq99/H-Cloud/internal/model"
+    "github.com/huanhq99/H-Cloud/internal/storage"
     "gorm.io/gorm"
 )
 

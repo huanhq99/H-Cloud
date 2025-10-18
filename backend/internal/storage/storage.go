@@ -10,7 +10,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/huanhq/hqyun/internal/config"
+	"github.com/huanhq99/H-Cloud/internal/config"
 )
 
 var (

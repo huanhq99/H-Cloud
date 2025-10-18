@@ -3,8 +3,8 @@ package database
 import (
     "fmt"
 
-    "github.com/huanhq/hqyun/internal/config"
-    "github.com/huanhq/hqyun/internal/model"
+    "github.com/huanhq99/H-Cloud/internal/config"
+    "github.com/huanhq99/H-Cloud/internal/model"
     "gorm.io/driver/mysql"
     "gorm.io/driver/sqlite"
     "gorm.io/gorm"
