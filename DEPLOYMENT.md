@@ -1,26 +1,291 @@
-# H-Cloud Drive 部署指南 🚀
+# H-Cloud Drive 部署指南
 
-本文档详细介绍了 H-Cloud Drive 的各种部署方式和配置选项。
+本文档提供了 H-Cloud Drive 的详细部署说明。
 
-## 📋 系统要求
+## 目录
+- [系统要求](#系统要求)
+- [VPS 一键部署](#vps-一键部署)
+- [Docker 部署](#docker-部署)
+- [手动部署](#手动部署)
+- [配置说明](#配置说明)
+- [故障排除](#故障排除)
+
+## 系统要求
 
 ### 最低配置
-- **CPU**: 1 核心
-- **内存**: 512MB RAM
-- **存储**: 1GB 可用空间
-- **操作系统**: Linux/macOS/Windows
+- CPU: 1 核心
+- 内存: 512MB
+- 存储: 10GB 可用空间
+- 操作系统: Linux/macOS/Windows
 
 ### 推荐配置
-- **CPU**: 2+ 核心
-- **内存**: 2GB+ RAM
-- **存储**: 10GB+ 可用空间
-- **网络**: 稳定的网络连接
+- CPU: 2 核心或以上
+- 内存: 2GB 或以上
+- 存储: 50GB 或以上可用空间
+- 操作系统: Ubuntu 20.04+ / CentOS 8+ / macOS 10.15+
 
-### 软件依赖
-- Go 1.19+ (源码部署)
-- Docker & Docker Compose (容器部署)
-- SQLite 3
-- 现代浏览器 (Chrome 90+, Firefox 88+, Safari 14+)
+## VPS 一键部署
+
+### 前置要求
+- Docker 20.10+
+- Docker Compose 2.0+
+
+### 快速部署
+
+1. 克隆项目
+```bash
+git clone https://github.com/huanhq99/H-Cloud.git
+cd H-Cloud
+```
+
+2. 运行一键部署脚本
+```bash
+./deploy.sh
+```
+
+脚本会自动：
+- 检查 Docker 环境
+- 创建必要的目录
+- 生成配置文件模板
+- 构建并启动服务
+- 检查服务健康状态
+
+3. 首次运行时，脚本会提示你编辑 `.env` 文件：
+```bash
+# 编辑配置文件
+nano .env
+
+# 重要：必须修改以下配置
+ADMIN_PASSWORD=your_secure_password_here
+JWT_SECRET=your_jwt_secret_key_here_at_least_32_characters
+PORT=8080  # 可选，默认8080
+```
+
+4. 再次运行部署脚本
+```bash
+./deploy.sh
+```
+
+5. 访问服务
+打开浏览器访问 `http://your-server-ip:8080/login.html`
+
+### 生产环境配置
+
+#### 安全配置
+```bash
+# .env 文件示例
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=your_very_secure_password_123!
+JWT_SECRET=your_super_secret_jwt_key_at_least_32_characters_long
+GIN_MODE=release
+LOG_LEVEL=info
+PORT=8080
+```
+
+#### 防火墙配置
+```bash
+# Ubuntu/Debian
+sudo ufw allow 8080/tcp
+
+# CentOS/RHEL
+sudo firewall-cmd --permanent --add-port=8080/tcp
+sudo firewall-cmd --reload
+```
+
+#### 反向代理 (Nginx)
+```nginx
+server {
+    listen 80;
+    server_name your-domain.com;
+    
+    location / {
+        proxy_pass http://localhost:8080;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+```
+
+## Docker 部署
+
+### 前置要求
+- Docker 20.10+
+- Docker Compose 2.0+
+
+### 手动部署
+
+1. 克隆项目
+```bash
+git clone https://github.com/huanhq99/H-Cloud.git
+cd H-Cloud
+```
+
+2. 配置环境变量
+```bash
+cp .env.example .env
+# 编辑 .env 文件，修改必要的配置
+```
+
+3. 启动服务
+```bash
+docker-compose up -d
+```
+
+4. 访问服务
+打开浏览器访问 `http://localhost:8080/login.html`
+
+### 详细配置
+
+#### 环境变量说明
+- `ADMIN_USERNAME`: 管理员用户名（默认: admin）
+- `ADMIN_PASSWORD`: 管理员密码（默认: admin123）
+- `JWT_SECRET`: JWT 密钥（生产环境必须修改）
+- `GIN_MODE`: 运行模式（debug/release）
+- `LOG_LEVEL`: 日志级别（debug/info/warn/error）
+- `MAX_UPLOAD_SIZE`: 最大上传文件大小
+- `PORT`: 服务端口
+
+#### 数据持久化
+默认情况下，数据存储在以下目录：
+- `./data`: 应用数据
+- `./storage`: 用户文件存储
+- `./logs`: 应用日志
+
+## 手动部署
+
+### 前置要求
+- Go 1.21+
+- Node.js 16+ (如果需要构建前端)
+
+### 后端部署
+
+1. 编译后端
+```bash
+cd backend
+go mod download
+go build -o h-cloud-server cmd/server/main.go
+```
+
+2. 配置文件
+```bash
+cp configs/config.yaml.example configs/config.yaml
+# 编辑配置文件
+```
+
+3. 启动服务
+```bash
+./h-cloud-server
+```
+
+## 配置说明
+
+### 基本配置
+- 服务端口: 8080
+- 数据目录: ./data
+- 存储目录: ./storage
+- 日志目录: ./logs
+
+### 安全配置
+- 修改默认管理员密码
+- 设置强 JWT 密钥（至少32位字符）
+- 配置 HTTPS（生产环境推荐）
+- 启用防火墙规则
+
+### 性能配置
+- 内存限制: 512MB（可调整）
+- CPU 限制: 0.5 核心（可调整）
+- 日志轮转: 10MB/文件，保留3个文件
+
+## 故障排除
+
+### 常见问题
+
+1. **端口被占用**
+   - 修改 .env 文件中的 PORT 配置
+   - 或停止占用端口的服务
+
+2. **权限问题**
+   - 确保数据目录有正确的读写权限
+   - Linux 下可能需要调整 SELinux 设置
+
+3. **内存不足**
+   - 增加服务器内存
+   - 或调整 docker-compose.yml 中的内存限制
+
+4. **服务无法启动**
+   - 检查 .env 配置是否正确
+   - 查看容器日志排查问题
+
+### 日志查看
+```bash
+# Docker 部署
+docker-compose logs -f h-cloud
+
+# 查看实时日志
+tail -f logs/app.log
+```
+
+### 常用管理命令
+```bash
+# 查看服务状态
+docker-compose ps
+
+# 重启服务
+docker-compose restart h-cloud
+
+# 停止服务
+docker-compose down
+
+# 更新服务
+./deploy.sh
+```
+
+## 更新升级
+
+### 使用部署脚本更新
+```bash
+git pull
+./deploy.sh
+```
+
+### 手动更新
+```bash
+git pull
+docker-compose down
+docker-compose build --no-cache
+docker-compose up -d
+```
+
+## 备份恢复
+
+### 数据备份
+```bash
+# 备份用户数据
+tar -czf backup-$(date +%Y%m%d).tar.gz data/ storage/ logs/
+```
+
+### 数据恢复
+```bash
+# 恢复数据
+tar -xzf backup-YYYYMMDD.tar.gz
+```
+
+## 监控和维护
+
+### 健康检查
+服务提供健康检查接口：`http://localhost:8080/api/system/info`
+
+### 日志监控
+- 应用日志：`./logs/app.log`
+- 容器日志：`docker-compose logs h-cloud`
+
+### 定期维护
+- 定期备份数据
+- 监控磁盘空间使用
+- 检查日志文件大小
+- 更新系统和 Docker 镜像
 
 ## 🔧 部署方式
 

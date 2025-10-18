@@ -69,52 +69,116 @@ go run cmd/server/main.go
 
 服务将在 `http://localhost:8080` 启动
 
-#### 3. 使用 Docker 部署
+#### 3. Docker Compose 部署 (推荐)
 
-##### 基础部署 (推荐)
+##### 快速部署
 
 ```bash
-# 克隆项目
-git clone https://github.com/huanhq99/H-yunpan.git
-cd H-yunpan
+# 1. 克隆项目
+git clone https://github.com/huanhq99/H-Cloud.git
+cd H-Cloud
 
-# 启动服务
-docker-compose up -d
+# 2. 创建数据目录
+mkdir -p data storage
 
-# 查看服务状态
-docker-compose ps
+# 3. 直接启动服务
+docker compose up -d
 
-# 访问应用
-# 后端API: http://localhost:8080
-# 管理员登录: http://localhost:8080/login.html
+# 4. 查看服务状态
+docker compose ps
+
+# 5. 查看日志
+docker compose logs -f h-cloud
 ```
 
 ##### 自定义配置部署
 
 ```bash
-# 创建环境变量文件
-cat > .env << EOF
+# 1. 复制配置文件模板
+cp .env.example .env
+
+# 2. 编辑配置文件
+nano .env
+```
+
+配置文件内容：
+```bash
+# 服务端口
+PORT=8080
+
+# 管理员账号配置
 ADMIN_USERNAME=admin
 ADMIN_PASSWORD=your_secure_password_here
-JWT_SECRET=your_super_secret_jwt_key
-SERVER_MODE=release
-LOCAL_STORAGE_PATH=./data/storage
-EOF
 
-# 启动服务
-docker-compose up -d
+# JWT 密钥 (生产环境必须修改)
+JWT_SECRET=your_jwt_secret_key_here
+
+# 数据目录映射
+DATA_DIR=./data
+STORAGE_DIR=./storage
 ```
-
-##### 带 Nginx 反向代理
 
 ```bash
-# 启动完整服务 (包含 Nginx)
-docker-compose --profile nginx up -d
-
-# 访问应用
-# HTTP: http://localhost
-# HTTPS: https://localhost (需配置SSL证书)
+# 3. 启动服务
+docker compose up -d
 ```
+
+##### 生产环境部署
+
+使用提供的一键部署脚本：
+
+```bash
+# 1. 给脚本执行权限
+chmod +x deploy.sh
+
+# 2. 运行部署脚本
+./deploy.sh
+
+# 脚本会自动：
+# - 检查 Docker 环境
+# - 创建必要目录
+# - 生成配置文件
+# - 启动服务
+# - 检查健康状态
+```
+
+##### 常用管理命令
+
+```bash
+# 启动服务
+docker compose up -d
+
+# 停止服务
+docker compose down
+
+# 重启服务
+docker compose restart
+
+# 查看日志
+docker compose logs -f h-cloud
+
+# 更新镜像
+docker compose pull
+docker compose up -d
+
+# 进入容器
+docker compose exec h-cloud sh
+
+# 备份数据
+tar -czf backup-$(date +%Y%m%d).tar.gz data storage
+
+# 清理无用镜像
+docker image prune -f
+```
+
+### 访问应用
+
+部署完成后，可以通过以下地址访问：
+
+- **管理员登录**: http://localhost:8080/login.html
+- **API 文档**: http://localhost:8080/api.html
+- **文件分享页面**: http://localhost:8080/share.html
+- **后端 API**: http://localhost:8080/api/
 
 ### 默认管理员账号
 

@@ -1,17 +1,15 @@
 version: '3.8'
 
 services:
-  # H-Cloud 云盘服务
   h-cloud:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
+    container_name: h-cloud
+    image: huanhq99/h-cloud:latest
     ports:
       - "8080:8080"
     environment:
-      - ADMIN_USERNAME=${ADMIN_USERNAME:-admin}
-      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin123}
-      - JWT_SECRET=${JWT_SECRET:-change-me-in-production}
+      - ADMIN_USERNAME=admin
+      - ADMIN_PASSWORD=admin123
+      - JWT_SECRET=your-jwt-secret-key
     volumes:
       - ./data:/data
       - ./storage:/app/storage
