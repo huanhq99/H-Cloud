@@ -109,6 +109,7 @@ func SetupRouter(r *gin.Engine, db *gorm.DB, cfg *config.Config) {
             dirs.POST("/map", dirController.MapDirectory)
             dirs.GET("/list", dirController.ListDirectories)
             dirs.DELETE("/:id", dirController.DeleteDirectory)
+            dirs.PUT("/rename", dirController.RenameDirectory)
         }
 
         // 分享相关路由 - 移除认证，实现H-Yun盘

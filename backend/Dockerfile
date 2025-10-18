@@ -1,6 +1,6 @@
-# 强制使用AMD64架构 - 绝对不要ARM64！
+# 多架构支持的Dockerfile
 # syntax=docker/dockerfile:1
-FROM --platform=linux/amd64 golang:1.24-alpine AS builder
+FROM golang:1.24-alpine AS builder
 
 WORKDIR /app
 
@@ -14,11 +14,11 @@ RUN go mod download
 # 复制源代码
 COPY . .
 
-# 编译（启用CGO以支持SQLite，强制指定AMD64架构）
-RUN CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -o h-cloud-server ./cmd/server
+# 编译（启用CGO以支持SQLite，支持多架构）
+RUN CGO_ENABLED=1 go build -o h-cloud-server ./cmd/server
 
-# 最终镜像 - 强制使用AMD64架构
-FROM --platform=linux/amd64 alpine:3.18
+# 最终镜像
+FROM alpine:3.18
 
 WORKDIR /app
 

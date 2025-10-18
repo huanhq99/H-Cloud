@@ -50,14 +50,14 @@ func ensureDir(path string) error {
 
 // SaveFile 保存文件
 func SaveFile(userID uint, dirPath string, filename string, fileSize int64, reader io.Reader) (string, error) {
-	// 构建存储路径
-	userDir := filepath.Join(StoragePath, fmt.Sprintf("user_%d", userID))
-	if err := ensureDir(userDir); err != nil {
+	// 直接使用存储路径，不再创建user_目录
+	baseDir := StoragePath
+	if err := ensureDir(baseDir); err != nil {
 		return "", err
 	}
 
 	// 构建完整的目录路径
-	fullDirPath := filepath.Join(userDir, dirPath)
+	fullDirPath := filepath.Join(baseDir, dirPath)
 	if err := ensureDir(fullDirPath); err != nil {
 		return "", err
 	}
@@ -80,8 +80,8 @@ func SaveFile(userID uint, dirPath string, filename string, fileSize int64, read
 		return "", err
 	}
 
-	// 返回相对于用户目录的路径
-	relPath, err := filepath.Rel(userDir, filePath)
+	// 返回相对于存储目录的路径
+	relPath, err := filepath.Rel(baseDir, filePath)
 	if err != nil {
 		return "", err
 	}
@@ -91,8 +91,8 @@ func SaveFile(userID uint, dirPath string, filename string, fileSize int64, read
 
 // GetFile 获取文件
 func GetFile(userID uint, filePath string) (*os.File, error) {
-	// 构建完整的文件路径
-	fullPath := filepath.Join(StoragePath, fmt.Sprintf("user_%d", userID), filePath)
+	// 构建完整的文件路径，直接使用存储路径
+	fullPath := filepath.Join(StoragePath, filePath)
 
 	// 检查文件是否存在
 	if _, err := os.Stat(fullPath); os.IsNotExist(err) {
@@ -105,8 +105,8 @@ func GetFile(userID uint, filePath string) (*os.File, error) {
 
 // DeleteFile 删除文件
 func DeleteFile(userID uint, filePath string) error {
-	// 构建完整的文件路径
-	fullPath := filepath.Join(StoragePath, fmt.Sprintf("user_%d", userID), filePath)
+	// 构建完整的文件路径，直接使用存储路径
+	fullPath := filepath.Join(StoragePath, filePath)
 
 	// 检查文件是否存在
 	if _, err := os.Stat(fullPath); os.IsNotExist(err) {
@@ -119,20 +119,20 @@ func DeleteFile(userID uint, filePath string) error {
 
 // CreateDirectory 创建目录
 func CreateDirectory(userID uint, dirPath string, dirName string) (string, error) {
-	// 构建用户目录
-	userDir := filepath.Join(StoragePath, fmt.Sprintf("user_%d", userID))
-	if err := ensureDir(userDir); err != nil {
+	// 直接使用存储路径，不再创建user_目录
+	baseDir := StoragePath
+	if err := ensureDir(baseDir); err != nil {
 		return "", err
 	}
 
 	// 构建完整的目录路径
-	fullPath := filepath.Join(userDir, dirPath, dirName)
+	fullPath := filepath.Join(baseDir, dirPath, dirName)
 	if err := ensureDir(fullPath); err != nil {
 		return "", err
 	}
 
-	// 返回相对于用户目录的路径
-	relPath, err := filepath.Rel(userDir, fullPath)
+	// 返回相对于存储目录的路径
+	relPath, err := filepath.Rel(baseDir, fullPath)
 	if err != nil {
 		return "", err
 	}

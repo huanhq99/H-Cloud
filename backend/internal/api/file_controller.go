@@ -438,19 +438,45 @@ func (c *FileController) RenameFile(ctx *gin.Context) {
 		return
 	}
 
+	// 验证新文件名安全性
+	if err := security.ValidateFileName(req.NewName); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "文件名不合法: " + err.Error()})
+		return
+	}
+
 	// 构建新的文件路径
 	dir := filepath.Dir(filePath)
 	newPath := filepath.Join(dir, req.NewName)
 
-	// 获取用户存储路径
-	userStoragePath := filepath.Join(storage.MappedPath, fmt.Sprintf("user_%d", 1))
-	oldFullPath := filepath.Join(userStoragePath, filePath)
-	newFullPath := filepath.Join(userStoragePath, newPath)
+	// 直接使用存储路径，不再使用user_目录
+	oldFullPath := filepath.Join(storage.StoragePath, filePath)
+	newFullPath := filepath.Join(storage.StoragePath, newPath)
+
+	// 检查原文件是否存在
+	if _, err := os.Stat(oldFullPath); os.IsNotExist(err) {
+		ctx.JSON(http.StatusNotFound, gin.H{"error": "原文件不存在"})
+		return
+	}
+
+	// 检查新文件名是否已存在
+	if _, err := os.Stat(newFullPath); err == nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "目标文件名已存在"})
+		return
+	}
 
 	// 重命名文件
 	if err := os.Rename(oldFullPath, newFullPath); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "重命名失败: " + err.Error()})
 		return
+	}
+
+	// 更新数据库记录（如果存在）
+	var fileRecord model.File
+	if err := c.DB.Where("path = ? AND user_id = ?", filePath, 1).First(&fileRecord).Error; err == nil {
+		// 更新文件记录的路径和名称
+		fileRecord.Path = newPath
+		fileRecord.Name = req.NewName
+		c.DB.Save(&fileRecord)
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{

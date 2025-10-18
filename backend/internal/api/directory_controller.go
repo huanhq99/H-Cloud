@@ -1,17 +1,18 @@
 package api
 
 import (
-    "net/http"
-    "path/filepath"
-    "strconv"
-    "time"
-    "strings"
+	"net/http"
+	"os"
+	"path/filepath"
+	"strconv"
+	"time"
+	"strings"
 
-    "github.com/gin-gonic/gin"
-    "github.com/huanhq99/H-Cloud/internal/model"
-    "github.com/huanhq99/H-Cloud/internal/storage"
-    "github.com/huanhq99/H-Cloud/internal/security"
-    "gorm.io/gorm"
+	"github.com/gin-gonic/gin"
+	"github.com/huanhq99/H-Cloud/internal/model"
+	"github.com/huanhq99/H-Cloud/internal/storage"
+	"github.com/huanhq99/H-Cloud/internal/security"
+	"gorm.io/gorm"
 )
 
 // DirectoryController 目录控制器
@@ -282,4 +283,75 @@ func (c *DirectoryController) DeleteDirectory(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{"message": "目录删除成功"})
+}
+
+// RenameDirectory 重命名目录 - H-Yun盘版本
+func (c *DirectoryController) RenameDirectory(ctx *gin.Context) {
+	// 获取目录路径参数
+	dirPath := ctx.Query("path")
+	if dirPath == "" {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "请提供目录路径"})
+		return
+	}
+
+	// 获取新目录名
+	var req struct {
+		NewName string `json:"newName" binding:"required"`
+	}
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "请提供新目录名"})
+		return
+	}
+
+	// 验证新目录名安全性
+	if err := security.ValidateFileName(req.NewName); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "目录名不合法: " + err.Error()})
+		return
+	}
+
+	// 构建新的目录路径
+	parentDir := filepath.Dir(dirPath)
+	newPath := filepath.Join(parentDir, req.NewName)
+
+	// 直接使用存储路径，不再使用user_目录
+	oldFullPath := filepath.Join(storage.StoragePath, dirPath)
+	newFullPath := filepath.Join(storage.StoragePath, newPath)
+
+	// 检查原目录是否存在
+	if stat, err := os.Stat(oldFullPath); os.IsNotExist(err) {
+		ctx.JSON(http.StatusNotFound, gin.H{"error": "原目录不存在"})
+		return
+	} else if !stat.IsDir() {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "指定路径不是目录"})
+		return
+	}
+
+	// 检查新目录名是否已存在
+	if _, err := os.Stat(newFullPath); err == nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "目标目录名已存在"})
+		return
+	}
+
+	// 重命名目录
+	if err := os.Rename(oldFullPath, newFullPath); err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "重命名失败: " + err.Error()})
+		return
+	}
+
+	// 更新数据库记录（如果存在）
+	var dirRecord model.Directory
+	if err := c.DB.Where("path = ? AND user_id = ?", dirPath, 1).First(&dirRecord).Error; err == nil {
+		// 更新目录记录的路径和名称
+		dirRecord.Path = newPath
+		dirRecord.Name = req.NewName
+		c.DB.Save(&dirRecord)
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"message": "目录重命名成功",
+		"directory": gin.H{
+			"name": req.NewName,
+			"path": newPath,
+		},
+	})
 }
