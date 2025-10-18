@@ -7,6 +7,7 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"strings"
 	"syscall"
 	"time"
 
@@ -25,14 +26,15 @@ func InitStorage(cfg *config.Config) error {
 	StoragePath = cfg.Storage.Path
 	MappedPath = cfg.Storage.MappedPath
 
-	// 确保存储目录存在
+	// 确保存储目录存在（如果路径不是绝对路径或者是可写的）
 	if err := ensureDir(StoragePath); err != nil {
-		return err
+		// 如果无法创建目录（比如权限问题），只记录警告但不返回错误
+		fmt.Printf("警告: 无法创建存储目录 %s: %v\n", StoragePath, err)
 	}
 
 	// 确保映射目录存在
 	if err := ensureDir(MappedPath); err != nil {
-		return err
+		fmt.Printf("警告: 无法创建映射目录 %s: %v\n", MappedPath, err)
 	}
 
 	return nil
@@ -164,8 +166,15 @@ func MapDirectory(userID uint, sourcePath string, targetPath string) error {
 
 // ListDirectory 列出目录内容
 func ListDirectory(userID uint, dirPath string) ([]fs.FileInfo, error) {
-	// 构建完整的目录路径
-	fullPath := filepath.Join(StoragePath, fmt.Sprintf("user_%d", userID), dirPath)
+	var fullPath string
+	
+	// 如果是根目录，直接使用StoragePath
+	if dirPath == "/" || dirPath == "" {
+		fullPath = StoragePath
+	} else {
+		// 对于子目录，拼接路径
+		fullPath = filepath.Join(StoragePath, strings.TrimPrefix(dirPath, "/"))
+	}
 
 	// 检查目录是否存在
 	if _, err := os.Stat(fullPath); os.IsNotExist(err) {

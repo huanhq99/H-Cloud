@@ -1,0 +1,26 @@
+# Git相关
+.git
+.gitignore
+
+# 文档
+*.md
+LICENSE
+
+# 开发工具
+.trae/
+.vscode/
+.idea/
+
+# 临时文件
+*.tmp
+*.log
+.DS_Store
+
+# 数据目录
+data/
+storage/
+
+# 前端相关
+frontend/
+docker-compose.yml
+deploy.sh

@@ -98,6 +98,36 @@ docker logs -f h-cloud
 
 ##### Docker Compose 部署
 
+创建 `docker-compose.yml` 文件：
+
+```yaml
+services:
+  h-cloud:
+    # 使用版本标签确保部署一致性
+    image: huanhq99/h-cloud:v0.0.1
+    container_name: h-cloud
+    ports:
+      - "8080:8080"
+    environment:
+      - ADMIN_USERNAME=${ADMIN_USERNAME:-admin}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin123}
+      - JWT_SECRET=${JWT_SECRET:-your_jwt_secret_key_here_at_least_32_characters}
+      - GIN_MODE=${GIN_MODE:-release}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+    volumes:
+      - ./data:/data
+      - ./storage:/app/storage
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+```
+
+部署步骤：
+
 ```bash
 # 1. 克隆项目
 git clone https://github.com/huanhq99/H-Cloud.git
@@ -260,38 +290,30 @@ admin:
 
 ## 🔧 API 接口
 
-### 认证接口
+详细的 API 文档请参考：[API.md](API.md)
 
-| 方法 | 路径 | 描述 |
-|------|------|------|
-| POST | `/api/auth/register` | 用户注册 |
-| POST | `/api/auth/login` | 用户登录 |
-| GET | `/api/auth/me` | 获取当前用户信息 |
+### 主要接口概览
 
-### 管理员接口
+#### 认证接口
+- `POST /api/auth/register` - 用户注册
+- `POST /api/auth/login` - 用户登录
+- `GET /api/auth/me` - 获取当前用户信息
 
-| 方法 | 路径 | 描述 |
-|------|------|------|
-| POST | `/api/admin/login` | 管理员登录 |
-| POST | `/api/admin/logout` | 管理员登出 |
-| GET | `/api/admin/me` | 获取管理员信息 |
+#### 管理员接口
+- `POST /api/admin/login` - 管理员登录
+- `POST /api/admin/logout` - 管理员登出
+- `GET /api/admin/me` - 获取管理员信息
 
-### 文件管理接口
+#### 文件管理接口
+- `POST /api/files/upload` - 文件上传
+- `GET /api/files/download/:id` - 文件下载
+- `DELETE /api/files/:id` - 删除文件
+- `GET /api/files/list` - 文件列表
 
-| 方法 | 路径 | 描述 |
-|------|------|------|
-| POST | `/api/files/upload` | 文件上传 |
-| GET | `/api/files/download/:id` | 文件下载 |
-| DELETE | `/api/files/:id` | 删除文件 |
-| GET | `/api/files/list` | 文件列表 |
-
-### 分享接口
-
-| 方法 | 路径 | 描述 |
-|------|------|------|
-| POST | `/api/share/create` | 创建分享链接 |
-| GET | `/api/share/:token` | 访问分享内容 |
-| DELETE | `/api/share/:id` | 删除分享 |
+#### 分享接口
+- `POST /api/shares/create` - 创建分享链接
+- `GET /api/shares/access/:uuid` - 访问分享内容
+- `DELETE /api/shares/:uuid` - 删除分享
 
 ## 🏗️ 项目结构
 

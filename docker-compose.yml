@@ -1,7 +1,7 @@
 services:
   h-cloud:
-    # 明确使用 AMD64 架构镜像
-    image: huanhq99/h-cloud:latest
+    # 使用版本标签确保部署一致性
+    image: huanhq99/h-cloud:v0.0.1
     container_name: h-cloud
     ports:
       - "8080:8080"

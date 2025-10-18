@@ -220,6 +220,70 @@ func (c *FileController) ListFiles(ctx *gin.Context) {
 		return
 	}
 	
+	// 使用物理目录扫描来获取所有文件和目录
+	physicalFiles, err := storage.ListDirectory(uint(userID), dirPath)
+	if err != nil {
+		// 如果物理目录不存在，尝试从数据库获取（向后兼容）
+		c.listFromDatabase(ctx, userID, dirPath)
+		return
+	}
+
+	// 构建文件列表响应
+	files := make([]gin.H, 0)
+	directories := make([]gin.H, 0)
+	
+	// 创建数据库文件映射，用于获取额外信息
+	dbFileMap := make(map[string]model.File)
+	var dbFiles []model.File
+	c.DB.Where("user_id = ?", userID).Find(&dbFiles)
+	for _, file := range dbFiles {
+		dbFileMap[file.Name] = file
+	}
+
+	// 处理物理目录中的每个条目
+	for _, fileInfo := range physicalFiles {
+		if fileInfo.IsDir() {
+			// 目录
+			directories = append(directories, gin.H{
+				"id":        0, // 物理目录没有数据库ID
+				"name":      fileInfo.Name(),
+				"path":      filepath.Join(dirPath, fileInfo.Name()),
+				"modTime":   fileInfo.ModTime().Format(time.RFC3339),
+				"updatedAt": fileInfo.ModTime().Format(time.RFC3339),
+				"isDir":     true,
+			})
+		} else {
+			// 文件
+			fileItem := gin.H{
+				"name":        fileInfo.Name(),
+				"path":        filepath.Join(dirPath, fileInfo.Name()),
+				"size":        fileInfo.Size(),
+				"modTime":     fileInfo.ModTime().Format(time.RFC3339),
+				"updatedAt":   fileInfo.ModTime().Format(time.RFC3339),
+				"isDir":       false,
+			}
+			
+			// 如果数据库中有该文件的记录，使用数据库中的额外信息
+			if dbFile, exists := dbFileMap[fileInfo.Name()]; exists {
+				fileItem["id"] = dbFile.ID
+				fileItem["contentType"] = dbFile.ContentType
+			} else {
+				fileItem["id"] = 0
+				fileItem["contentType"] = "application/octet-stream"
+			}
+			
+			files = append(files, fileItem)
+		}
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"files":       files,
+		"directories": directories,
+	})
+}
+
+// listFromDatabase 从数据库获取文件列表（向后兼容方法）
+func (c *FileController) listFromDatabase(ctx *gin.Context, userID int, dirPath string) {
 	// 从数据库获取目录列表
 	var dbDirectories []model.Directory
 	var parentID *uint
