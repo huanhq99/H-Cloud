@@ -57,3 +57,17 @@ type Share struct {
     IsPublic    bool      `gorm:"default:true"` // 是否公开分享
     NoExpire    bool      `gorm:"default:false"` // 永久有效
 }
+
+// RecycleBin 回收站模型
+type RecycleBin struct {
+    gorm.Model
+    UserID       uint      `gorm:"index;not null"`
+    OriginalName string    `gorm:"not null"`           // 原始文件/目录名
+    OriginalPath string    `gorm:"not null"`           // 原始路径
+    StoragePath  string    `gorm:"not null"`           // 存储路径
+    Size         int64     `gorm:"not null"`           // 文件大小（字节）
+    ContentType  string                                // MIME类型
+    ItemType     string    `gorm:"not null"`           // 类型：file 或 directory
+    DeletedAt    time.Time `gorm:"not null"`           // 删除时间
+    ExpireAt     time.Time `gorm:"not null"`           // 过期时间（30天后自动清理）
+}

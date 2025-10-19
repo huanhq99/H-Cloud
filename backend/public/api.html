@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>H-Cloud盘</title>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
   <style>
     :root {
       --primary: #4f46e5;
@@ -269,6 +269,48 @@
     .folder-item i {
       width: 16px;
       color: var(--primary);
+    }
+
+    /* Recycle Section */
+    .recycle-section {
+      padding: 16px 0;
+      border-top: 1px solid var(--border);
+    }
+
+    .recycle-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 24px 12px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .recycle-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 24px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .recycle-item:hover {
+      background: var(--bg-secondary);
+    }
+
+    .recycle-item.active {
+      background: rgba(239, 68, 68, 0.1);
+      color: #ef4444;
+      border-right: 2px solid #ef4444;
+    }
+
+    .recycle-item i {
+      width: 16px;
+      color: #ef4444;
     }
 
     /* Main Content */
@@ -656,6 +698,229 @@
       border-top: 1px solid var(--border);
       background: var(--bg-secondary);
     }
+
+    /* 文件预览对话框样式 */
+    .preview-dialog {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+    }
+
+    .preview-content {
+      background: var(--bg-primary);
+      border-radius: 12px;
+      max-width: 90vw;
+      max-height: 90vh;
+      overflow: hidden;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .preview-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--bg-secondary);
+    }
+
+    .preview-title {
+      font-weight: 600;
+      color: var(--text-primary);
+      font-size: 16px;
+    }
+
+    .preview-close {
+      background: none;
+      border: none;
+      font-size: 20px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 4px;
+      transition: all 0.2s;
+    }
+
+    .preview-close:hover {
+      background: var(--bg-hover);
+      color: var(--text-primary);
+    }
+
+    .preview-body {
+      padding: 20px;
+      flex: 1;
+      overflow: auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .preview-media {
+      max-width: 100%;
+      max-height: 70vh;
+      border-radius: 8px;
+    }
+
+    .preview-pdf {
+      width: 100%;
+      height: 70vh;
+      border: none;
+      border-radius: 8px;
+    }
+
+    .preview-text {
+      width: 100%;
+      height: 70vh;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      font-family: 'Courier New', monospace;
+      font-size: 14px;
+      line-height: 1.5;
+      color: var(--text-primary);
+      overflow: auto;
+      white-space: pre-wrap;
+    }
+
+    .preview-unsupported {
+      text-align: center;
+      color: var(--text-secondary);
+      padding: 40px;
+    }
+
+    /* 回收站对话框样式 */
+    .recycle-dialog {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+    }
+
+    .recycle-content {
+      background: var(--bg-primary);
+      border-radius: 12px;
+      width: 90vw;
+      max-width: 1000px;
+      max-height: 80vh;
+      overflow: hidden;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .recycle-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--bg-secondary);
+    }
+
+    .recycle-header h3 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .recycle-body {
+      flex: 1;
+      overflow: auto;
+      padding: 0;
+    }
+
+    .recycle-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .recycle-table th,
+    .recycle-table td {
+      padding: 12px 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .recycle-table th {
+      background: var(--bg-secondary);
+      font-weight: 600;
+      color: var(--text-primary);
+      font-size: 14px;
+    }
+
+    .recycle-table td {
+      color: var(--text-secondary);
+      font-size: 14px;
+    }
+
+    .recycle-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .recycle-actions .btn {
+      padding: 6px 12px;
+      font-size: 12px;
+    }
+
+    .btn-restore {
+      background: var(--secondary);
+      color: white;
+    }
+
+    .btn-restore:hover {
+      background: #059669;
+    }
+
+    .btn-delete {
+      background: #ef4444;
+      color: white;
+    }
+
+    .btn-delete:hover {
+      background: #dc2626;
+    }
+
+    .recycle-footer {
+      padding: 16px 24px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--bg-secondary);
+    }
+
+    .empty-recycle {
+      text-align: center;
+      padding: 40px;
+      color: var(--text-muted);
+    }
+
+    .preview-unsupported i {
+      font-size: 48px;
+      margin-bottom: 16px;
+      color: var(--text-muted);
+    }
   </style>
 </head>
 <body>
@@ -669,7 +934,7 @@
         </div>
         <div class="search-box">
           <i class="fas fa-search"></i>
-          <input type="text" placeholder="搜索文件..." id="search-input">
+          <input type="text" placeholder="搜索文件..." id="search-input" onkeyup="handleSearch(event)">
         </div>
       </div>
       <div class="header-right">
@@ -721,6 +986,17 @@
           <div class="folder-title">文件夹</div>
           <div id="folder-tree">
             <!-- 动态加载的文件夹树 -->
+          </div>
+        </div>
+
+        <div class="recycle-section">
+          <div class="recycle-title">
+            <i class="fas fa-trash"></i>
+            <span>回收站</span>
+          </div>
+          <div class="recycle-item" onclick="showRecycleBin()">
+            <i class="fas fa-trash-alt"></i>
+            <span>已删除的文件</span>
           </div>
         </div>
       </aside>
@@ -1100,6 +1376,79 @@ function isImageFile(filename) {
       }
     }
 
+    // 搜索处理函数
+    let searchTimeout;
+    async function handleSearch(event) {
+      clearTimeout(searchTimeout);
+      const query = event.target.value.trim();
+      
+      // 防抖处理，延迟300ms执行搜索
+      searchTimeout = setTimeout(async () => {
+        if (query === '') {
+          // 如果搜索框为空，重新加载当前目录的文件
+          await loadFiles(currentPath);
+        } else {
+          // 执行搜索
+          await searchFiles(query);
+        }
+      }, 300);
+    }
+
+    // 搜索文件函数
+    async function searchFiles(query) {
+      try {
+        const response = await fetch(`/api/search/files?userId=${currentUserId}&query=${encodeURIComponent(query)}`);
+        const data = await response.json();
+        
+        const tbody = document.getElementById('file-table-body');
+        tbody.innerHTML = '';
+        
+        if (data.files && data.files.length > 0) {
+          data.files.forEach(file => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+              <td>
+                <div class="file-info">
+                  <i class="fas ${getFileIcon(file.name, file.isDir)}" style="color: ${getFileColor(file.name, file.isDir)}; margin-right: 8px;"></i>
+                  <span>${file.name}</span>
+                </div>
+              </td>
+              <td>${file.isDir ? '文件夹' : getFileType(file.name)}</td>
+              <td>${file.isDir ? '-' : formatFileSize(file.size)}</td>
+              <td>${formatDate(file.modTime)}</td>
+              <td>
+                <div class="action-buttons">
+                  ${!file.isDir ? `<button class="action-btn" title="预览" onclick="previewFile('${file.path}')"><i class="fas fa-eye"></i></button>` : ''}
+                  <button class="action-btn" title="分享" onclick="shareFile('${file.path}')"><i class="fas fa-share-alt"></i></button>
+                  ${!file.isDir ? `<button class="action-btn" title="图床链接" onclick="getImageLink('${file.path}')"><i class="fas fa-link"></i></button>` : ''}
+                  ${!file.isDir ? `<button class="action-btn" title="下载" onclick="downloadFile('${file.path}')"><i class="fas fa-download"></i></button>` : ''}
+                  <button class="action-btn" title="重命名" onclick="renameFile('${file.path}', '${file.name}')"><i class="fas fa-edit"></i></button>
+                  <button class="action-btn" title="删除" onclick="${file.isDir ? 'deleteDirectory' : 'deleteFile'}('${file.path}')"><i class="fas fa-trash"></i></button>
+                </div>
+              </td>
+            `;
+            
+            // 为文件夹添加双击事件
+            if (file.isDir) {
+              row.style.cursor = 'pointer';
+              row.ondblclick = () => {
+                currentPath = file.path;
+                loadFiles(currentPath);
+                updateBreadcrumb(currentPath);
+              };
+            }
+            
+            tbody.appendChild(row);
+          });
+        } else {
+          tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 40px;">未找到匹配的文件</td></tr>';
+        }
+      } catch (error) {
+        console.error('搜索文件失败:', error);
+        showMessage('搜索失败', 'error');
+      }
+    }
+
     // 获取文件列表
     async function loadFiles(path = '/') {
       try {
@@ -1145,10 +1494,13 @@ function isImageFile(filename) {
               <td class="file-date">${formatDate(file.modTime)}</td>
               <td>
                 <div class="file-actions">
+                  ${!file.isDir ? `<button class="action-btn" title="预览" onclick="previewFile('${file.path}', '${file.name}')">
+                    <i class="fas fa-eye"></i>
+                  </button>` : ''}
                   <button class="action-btn" title="分享" onclick="shareFile('${file.path}', ${file.id}, ${file.isDir})">
                     <i class="fas fa-share-alt"></i>
                   </button>
-                  ${isImageFile(file.name) ? `<button class="action-btn" title="图床链接" onclick="getImageDirectLink(${file.id}, '${file.name}')">
+                  ${isImageFile(file.name) ? `<button class="action-btn" title="图床链接" onclick="getImageDirectLinkByPath('${file.name}', '${file.path}')">
                     <i class="fas fa-image"></i>
                   </button>` : ''}
                   <button class="action-btn" title="下载" onclick="downloadFile('${file.path}')">
@@ -1157,7 +1509,7 @@ function isImageFile(filename) {
                   <button class="action-btn" title="重命名" onclick="renameFile('${file.path}', '${file.name}')">
                     <i class="fas fa-edit"></i>
                   </button>
-                  <button class="action-btn" title="删除" onclick="deleteFile('${file.path}')">
+                  <button class="action-btn" title="删除" onclick="${file.isDir ? `deleteDirectory('${file.path}')` : `deleteFile('${file.path}')`}">
                     <i class="fas fa-trash"></i>
                   </button>
                 </div>
@@ -1294,26 +1646,35 @@ function isImageFile(filename) {
           const shareData = await shareResponse.json();
           const shareUrl = window.location.origin + shareData.page;
           
+          // 如果有直接访问链接，优先显示storage路径
+          let displayUrl = shareUrl;
+          let linkType = "分享链接";
+          
+          if (shareData.directLink) {
+            displayUrl = window.location.origin + shareData.directLink;
+            linkType = "直接访问链接";
+          }
+          
           // 复制到剪贴板
           if (navigator.clipboard) {
-            await navigator.clipboard.writeText(shareUrl);
+            await navigator.clipboard.writeText(displayUrl);
             if (shareData.isPermanent) {
-              alert('分享链接已复制到剪贴板:\n' + shareUrl + '\n\n永久有效');
+              alert(`${linkType}已复制到剪贴板:\n${displayUrl}\n\n永久有效`);
             } else {
-              alert('分享链接已复制到剪贴板:\n' + shareUrl + '\n\n过期时间: ' + shareData.expireAt);
+              alert(`${linkType}已复制到剪贴板:\n${displayUrl}\n\n过期时间: ${shareData.expireAt}`);
             }
           } else {
             // 降级方案
             const textArea = document.createElement('textarea');
-            textArea.value = shareUrl;
+            textArea.value = displayUrl;
             document.body.appendChild(textArea);
             textArea.select();
             document.execCommand('copy');
             document.body.removeChild(textArea);
             if (shareData.isPermanent) {
-              alert('分享链接已复制到剪贴板:\n' + shareUrl + '\n\n永久有效');
+              alert(`${linkType}已复制到剪贴板:\n${displayUrl}\n\n永久有效`);
             } else {
-              alert('分享链接已复制到剪贴板:\n' + shareUrl + '\n\n过期时间: ' + shareData.expireAt);
+              alert(`${linkType}已复制到剪贴板:\n${displayUrl}\n\n过期时间: ${shareData.expireAt}`);
             }
           }
         } else {
@@ -1403,11 +1764,12 @@ function isImageFile(filename) {
     }
 
     function downloadFile(path) {
-      window.open(`/api/files/download?userId=${currentUserId}&path=${encodeURIComponent(path)}`);
+      // 使用storage路径直接下载
+      window.open(`/storage${path}`);
     }
 
     function deleteFile(path) {
-      if (confirm('确定要删除这个文件吗？')) {
+      if (confirm('确定要删除这个文件吗？文件将被移至回收站。')) {
         console.log('删除文件:', path);
         fetch(`/api/files/delete?userId=${currentUserId}&path=${encodeURIComponent(path)}`, {
           method: 'DELETE'
@@ -1416,22 +1778,81 @@ function isImageFile(filename) {
           if (response.ok) {
             return response.json().then(data => {
               console.log('删除成功:', data);
-              alert('删除成功');
+              alert('文件已移至回收站');
+              // 立即刷新界面
               loadFiles(currentPath);
               loadStorageInfo();
             });
+          } else if (response.status === 404) {
+            // 文件不存在，可能是数据库不同步，直接刷新界面
+            console.warn('文件不存在，可能已被删除，刷新界面');
+            alert('文件可能已被删除，正在刷新界面...');
+            loadFiles(currentPath);
+            loadStorageInfo();
           } else {
             return response.json().then(data => {
               console.error('删除失败响应:', data);
               alert('删除失败: ' + (data.error || '未知错误'));
+              // 即使删除失败也刷新界面，确保显示最新状态
+              loadFiles(currentPath);
             }).catch(() => {
               console.error('删除失败，状态码:', response.status);
               alert('删除失败，状态码: ' + response.status);
+              loadFiles(currentPath);
             });
           }
         }).catch(error => {
           console.error('删除文件网络错误:', error);
           alert('删除失败: 网络错误');
+          // 网络错误也刷新界面
+          loadFiles(currentPath);
+        });
+      }
+    }
+
+    function deleteDirectory(path) {
+      if (confirm('确定要删除这个文件夹吗？文件夹将被移至回收站。')) {
+        console.log('删除文件夹:', path);
+        fetch(`/api/directories/delete?userId=${currentUserId}&path=${encodeURIComponent(path)}`, {
+          method: 'DELETE'
+        }).then(response => {
+          console.log('删除响应状态:', response.status);
+          if (response.ok) {
+            return response.json().then(data => {
+              console.log('删除成功:', data);
+              alert('文件夹已移至回收站');
+              // 立即刷新界面
+              loadFiles(currentPath);
+              loadStorageInfo();
+              loadFolderTree(); // 刷新文件夹树
+            });
+          } else if (response.status === 404) {
+            // 文件夹不存在，可能是数据库不同步，直接刷新界面
+            console.warn('文件夹不存在，可能已被删除，刷新界面');
+            alert('文件夹可能已被删除，正在刷新界面...');
+            loadFiles(currentPath);
+            loadStorageInfo();
+            loadFolderTree();
+          } else {
+            return response.json().then(data => {
+              console.error('删除失败响应:', data);
+              alert('删除失败: ' + (data.error || '未知错误'));
+              // 即使删除失败也刷新界面，确保显示最新状态
+              loadFiles(currentPath);
+              loadFolderTree();
+            }).catch(() => {
+              console.error('删除失败，状态码:', response.status);
+              alert('删除失败，状态码: ' + response.status);
+              loadFiles(currentPath);
+              loadFolderTree();
+            });
+          }
+        }).catch(error => {
+          console.error('删除文件夹网络错误:', error);
+          alert('删除失败: 网络错误');
+          // 网络错误也刷新界面
+          loadFiles(currentPath);
+          loadFolderTree();
         });
       }
     }
@@ -1553,45 +1974,86 @@ function isImageFile(filename) {
       }
     });
 
-    // 获取图床直链
-    async function getImageDirectLink(fileId, fileName) {
+    // 获取基于路径的图床直链
+    async function getImageDirectLinkByPath(fileName, filePath) {
       try {
-        const directUrl = `${window.location.origin}/api/image/${fileId}`;
+        // 使用storage路径格式
+        const directUrl = `${window.location.origin}/storage${filePath}`;
         
-        // 创建对话框显示链接
+        // 生成各种格式的链接
+        const linkFormats = {
+          direct: directUrl,
+          markdown: `![${fileName}](${directUrl})`,
+          html: `<img src="${directUrl}" alt="${fileName}" />`,
+          bbcode: `[img]${directUrl}[/img]`,
+          forum: `[IMG]${directUrl}[/IMG]`,
+          textile: `!${directUrl}(${fileName})!`,
+          mediawiki: `[[File:${directUrl}|${fileName}]]`,
+          rst: `.. image:: ${directUrl}\n   :alt: ${fileName}`
+        };
+        
+        // 如果设置了自动复制，直接复制原始链接并提示
+        if (settings.autoCopyImageLink) {
+          if (navigator.clipboard) {
+            await navigator.clipboard.writeText(directUrl);
+            alert(`图床链接已复制到剪贴板！\n${directUrl}`);
+            return;
+          }
+        }
+        
+        // 显示多格式链接对话框
         const dialog = document.createElement('div');
         dialog.style.cssText = `
           position: fixed;
           top: 50%;
           left: 50%;
           transform: translate(-50%, -50%);
-          background: white;
-          padding: 20px;
-          border-radius: 10px;
-          box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+          background: var(--bg-card);
+          color: var(--text-primary);
+          padding: 25px;
+          border-radius: 12px;
+          box-shadow: var(--shadow-lg);
           z-index: 10000;
-          min-width: 400px;
-          max-width: 600px;
+          min-width: 500px;
+          max-width: 700px;
+          max-height: 80vh;
+          overflow-y: auto;
         `;
         
         dialog.innerHTML = `
-          <h3 style="margin-top: 0; color: #333;">图床链接 - ${fileName}</h3>
-          <div style="margin: 15px 0;">
-            <label style="display: block; margin-bottom: 5px; font-weight: bold;">直链地址:</label>
-            <input type="text" id="directLinkInput" value="${directUrl}" readonly 
-                   style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-family: monospace;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 15px;">
+            <h3 style="margin: 0; color: var(--text-primary); font-size: 18px;">图床链接 - ${fileName}</h3>
+            <button id="closeImageDialog" style="background: none; border: none; font-size: 24px; cursor: pointer; color: var(--text-secondary); padding: 0; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border-radius: 50%;">×</button>
           </div>
-          <div style="margin: 15px 0;">
-            <label style="display: block; margin-bottom: 5px; font-weight: bold;">预览:</label>
-            <img src="${directUrl}" alt="${fileName}" style="max-width: 100%; max-height: 200px; border: 1px solid #ddd; border-radius: 4px;">
+          
+          <div style="margin-bottom: 20px;">
+            <img src="${directUrl}" alt="${fileName}" style="max-width: 100%; max-height: 200px; border: 1px solid var(--border); border-radius: 8px; display: block; margin: 0 auto;">
           </div>
-          <div style="text-align: right; margin-top: 20px;">
-            <button id="copyDirectLink" style="background: #007bff; color: white; border: none; padding: 8px 16px; border-radius: 4px; margin-right: 10px; cursor: pointer;">复制链接</button>
-            <button id="closeDirectDialog" style="background: #6c757d; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">关闭</button>
+          
+          <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
+            <button class="format-tab active" data-format="direct" style="padding: 8px 16px; border: 1px solid var(--primary); background: var(--primary); color: white; border-radius: 6px; cursor: pointer; font-size: 14px;">原始链接</button>
+            <button class="format-tab" data-format="markdown" style="padding: 8px 16px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-primary); border-radius: 6px; cursor: pointer; font-size: 14px;">Markdown</button>
+            <button class="format-tab" data-format="html" style="padding: 8px 16px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-primary); border-radius: 6px; cursor: pointer; font-size: 14px;">HTML</button>
+            <button class="format-tab" data-format="bbcode" style="padding: 8px 16px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-primary); border-radius: 6px; cursor: pointer; font-size: 14px;">BBCode</button>
+            <button class="format-tab" data-format="forum" style="padding: 8px 16px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-primary); border-radius: 6px; cursor: pointer; font-size: 14px;">论坛代码</button>
+            <button class="format-tab" data-format="textile" style="padding: 8px 16px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-primary); border-radius: 6px; cursor: pointer; font-size: 14px;">Textile</button>
+          </div>
+          
+          <div style="margin-bottom: 20px;">
+            <textarea id="linkOutput" readonly style="width: 100%; height: 80px; padding: 12px; border: 1px solid var(--border); border-radius: 6px; font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace; font-size: 13px; background: var(--bg-secondary); color: var(--text-primary); resize: vertical;">${directUrl}</textarea>
+          </div>
+          
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div style="font-size: 12px; color: var(--text-muted);">
+              点击格式标签切换不同的链接格式
+            </div>
+            <div style="display: flex; gap: 10px;">
+              <button id="copyLinkBtn" style="background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-size: 14px;">复制链接</button>
+              <button id="closeDialogBtn" style="background: var(--secondary); color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-size: 14px;">关闭</button>
+            </div>
           </div>
         `;
         
-        // 创建遮罩层
         const overlay = document.createElement('div');
         overlay.style.cssText = `
           position: fixed;
@@ -1606,26 +2068,78 @@ function isImageFile(filename) {
         document.body.appendChild(overlay);
         document.body.appendChild(dialog);
         
-        // 复制链接功能
-        document.getElementById('copyDirectLink').onclick = () => {
-          const input = document.getElementById('directLinkInput');
-          input.select();
-          document.execCommand('copy');
-          alert('链接已复制到剪贴板！');
+        // 格式切换功能
+        const formatTabs = dialog.querySelectorAll('.format-tab');
+        const linkOutput = dialog.querySelector('#linkOutput');
+        let currentFormat = 'direct';
+        
+        formatTabs.forEach(tab => {
+          tab.addEventListener('click', () => {
+            // 更新按钮样式
+            formatTabs.forEach(t => {
+              t.style.background = 'var(--bg-card)';
+              t.style.color = 'var(--text-primary)';
+              t.style.border = '1px solid var(--border)';
+              t.classList.remove('active');
+            });
+            tab.style.background = 'var(--primary)';
+            tab.style.color = 'white';
+            tab.style.border = '1px solid var(--primary)';
+            tab.classList.add('active');
+            
+            // 更新链接内容
+            currentFormat = tab.dataset.format;
+            linkOutput.value = linkFormats[currentFormat];
+          });
+        });
+        
+        // 复制功能
+        document.getElementById('copyLinkBtn').onclick = async () => {
+          try {
+            if (navigator.clipboard) {
+              await navigator.clipboard.writeText(linkOutput.value);
+              // 临时改变按钮文字提示复制成功
+              const btn = document.getElementById('copyLinkBtn');
+              const originalText = btn.textContent;
+              btn.textContent = '已复制！';
+              btn.style.background = 'var(--secondary)';
+              setTimeout(() => {
+                btn.textContent = originalText;
+                btn.style.background = 'var(--primary)';
+              }, 1500);
+            } else {
+              // 降级方案
+              linkOutput.select();
+              document.execCommand('copy');
+              alert('链接已复制到剪贴板！');
+            }
+          } catch (error) {
+            console.error('复制失败:', error);
+            alert('复制失败，请手动选择复制');
+          }
         };
         
-        // 关闭对话框
         const closeDialog = () => {
           document.body.removeChild(overlay);
           document.body.removeChild(dialog);
         };
         
-        document.getElementById('closeDirectDialog').onclick = closeDialog;
+        document.getElementById('closeDialogBtn').onclick = closeDialog;
+        document.getElementById('closeImageDialog').onclick = closeDialog;
         overlay.onclick = closeDialog;
         
+        // ESC键关闭
+        const handleKeyDown = (e) => {
+          if (e.key === 'Escape') {
+            closeDialog();
+            document.removeEventListener('keydown', handleKeyDown);
+          }
+        };
+        document.addEventListener('keydown', handleKeyDown);
+        
       } catch (error) {
-        console.error('获取图床链接失败:', error);
-        alert('获取图床链接失败: ' + error.message);
+        console.error('获取基于路径的图床链接失败:', error);
+        alert('获取基于路径的图床链接失败: ' + error.message);
       }
     }
 
@@ -1742,7 +2256,19 @@ function isImageFile(filename) {
     // 修改图床链接功能，支持多种链接格式
     async function getImageDirectLink(fileId, fileName) {
       try {
-        const directUrl = `${window.location.origin}/api/image/${fileId}`;
+        // 使用storage路径格式，先获取文件信息
+        const response = await fetch(`/api/files/${fileId}`, {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error('获取文件信息失败');
+        }
+        
+        const fileData = await response.json();
+        const directUrl = `${window.location.origin}/storage${fileData.path}`;
         
         // 生成各种格式的链接
         const linkFormats = {
@@ -1905,6 +2431,353 @@ function isImageFile(filename) {
         console.error('获取图床链接失败:', error);
         alert('获取图床链接失败: ' + error.message);
       }
+    }
+
+    // 预览文件函数
+    function previewFile(path, fileName) {
+      const fileExt = fileName.toLowerCase().split('.').pop();
+      const filePath = `/storage/${fileName}`;
+      
+      // 创建预览对话框
+      const dialog = document.createElement('div');
+      dialog.className = 'preview-dialog';
+      dialog.innerHTML = `
+        <div class="preview-content">
+          <div class="preview-header">
+            <div class="preview-title">${fileName}</div>
+            <button class="preview-close" onclick="closePreview()">&times;</button>
+          </div>
+          <div class="preview-body" id="preview-body">
+            ${getPreviewContent(filePath, fileExt)}
+          </div>
+        </div>
+      `;
+      
+      document.body.appendChild(dialog);
+      
+      // 点击背景关闭
+      dialog.addEventListener('click', (e) => {
+        if (e.target === dialog) {
+          closePreview();
+        }
+      });
+      
+      // ESC键关闭
+      document.addEventListener('keydown', function escHandler(e) {
+        if (e.key === 'Escape') {
+          closePreview();
+          document.removeEventListener('keydown', escHandler);
+        }
+      });
+    }
+
+    // 获取预览内容
+    function getPreviewContent(filePath, fileExt) {
+      // 图片文件
+      if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'].includes(fileExt)) {
+        return `<img src="${filePath}" alt="预览图片" class="preview-media" />`;
+      }
+      
+      // 视频文件
+      if (['mp4', 'webm', 'ogg', 'avi', 'mov', 'wmv', 'flv', 'mkv'].includes(fileExt)) {
+        return `
+          <video controls class="preview-media">
+            <source src="${filePath}" type="video/${fileExt === 'mov' ? 'quicktime' : fileExt}">
+            您的浏览器不支持视频播放
+          </video>
+        `;
+      }
+      
+      // 音频文件
+      if (['mp3', 'wav', 'ogg', 'aac', 'flac', 'm4a'].includes(fileExt)) {
+        return `
+          <div style="width: 400px;">
+            <audio controls style="width: 100%; margin-bottom: 20px;">
+              <source src="${filePath}" type="audio/${fileExt}">
+              您的浏览器不支持音频播放
+            </audio>
+            <div style="text-align: center; color: var(--text-secondary);">
+              <i class="fas fa-music" style="font-size: 48px; margin-bottom: 16px;"></i>
+              <div>正在播放音频文件</div>
+            </div>
+          </div>
+        `;
+      }
+      
+      // PDF文件
+      if (fileExt === 'pdf') {
+        return `<iframe src="${filePath}" class="preview-pdf"></iframe>`;
+      }
+      
+      // 文本文件
+      if (['txt', 'md', 'json', 'xml', 'html', 'css', 'js', 'py', 'java', 'cpp', 'c', 'h', 'go', 'rs', 'php', 'rb', 'sh', 'yml', 'yaml', 'ini', 'conf', 'log'].includes(fileExt)) {
+        // 异步加载文本内容
+        setTimeout(() => loadTextContent(filePath), 100);
+        return `<textarea class="preview-text" id="text-content" readonly>正在加载文件内容...</textarea>`;
+      }
+      
+      // 不支持的文件类型
+      return `
+        <div class="preview-unsupported">
+          <i class="fas fa-file"></i>
+          <div>不支持预览此文件类型</div>
+          <div style="margin-top: 12px;">
+            <a href="${filePath}" download style="color: var(--primary); text-decoration: none;">
+              <i class="fas fa-download"></i> 下载文件
+            </a>
+          </div>
+        </div>
+      `;
+    }
+
+    // 加载文本文件内容
+    async function loadTextContent(filePath) {
+      try {
+        const response = await fetch(filePath);
+        if (response.ok) {
+          const text = await response.text();
+          const textArea = document.getElementById('text-content');
+          if (textArea) {
+            textArea.value = text;
+          }
+        } else {
+          const textArea = document.getElementById('text-content');
+          if (textArea) {
+            textArea.value = '无法加载文件内容';
+          }
+        }
+      } catch (error) {
+        const textArea = document.getElementById('text-content');
+        if (textArea) {
+          textArea.value = '加载文件内容时出错: ' + error.message;
+        }
+      }
+    }
+
+    // 关闭预览对话框
+    function closePreview() {
+      const dialog = document.querySelector('.preview-dialog');
+      if (dialog) {
+        dialog.remove();
+      }
+    }
+
+    // 显示回收站
+    async function showRecycleBin() {
+      try {
+        const response = await fetch('/api/recycle/list');
+        if (!response.ok) {
+          throw new Error('获取回收站列表失败');
+        }
+        
+        const data = await response.json();
+        const items = data.items || [];
+        
+        // 创建回收站对话框
+        const dialog = document.createElement('div');
+        dialog.className = 'recycle-dialog';
+        
+        let tableRows = '';
+        if (items.length === 0) {
+          tableRows = `
+            <tr>
+              <td colspan="6" class="empty-recycle">
+                <i class="fas fa-trash-alt" style="font-size: 48px; margin-bottom: 16px; opacity: 0.3;"></i>
+                <div>回收站为空</div>
+              </td>
+            </tr>
+          `;
+        } else {
+          tableRows = items.map(item => `
+            <tr>
+              <td>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <i class="fas fa-${item.itemType === 'directory' ? 'folder' : 'file'}"></i>
+                  ${item.originalName}
+                </div>
+              </td>
+              <td>${item.itemType === 'directory' ? '-' : formatFileSize(item.size)}</td>
+              <td>${item.itemType === 'directory' ? '文件夹' : item.contentType}</td>
+              <td>${formatDate(item.deletedAt)}</td>
+              <td>${formatDate(item.expireAt)}</td>
+              <td>
+                <div class="recycle-actions">
+                  <button class="btn btn-restore" onclick="restoreItem(${item.id})">
+                    <i class="fas fa-undo"></i> 恢复
+                  </button>
+                  <button class="btn btn-delete" onclick="permanentDelete(${item.id})">
+                    <i class="fas fa-trash"></i> 永久删除
+                  </button>
+                </div>
+              </td>
+            </tr>
+          `).join('');
+        }
+        
+        dialog.innerHTML = `
+          <div class="recycle-content">
+            <div class="recycle-header">
+              <h3>
+                <i class="fas fa-trash"></i>
+                回收站
+              </h3>
+              <button class="preview-close" onclick="closeRecycleBin()">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+            <div class="recycle-body">
+              <table class="recycle-table">
+                <thead>
+                  <tr>
+                    <th>名称</th>
+                    <th>大小</th>
+                    <th>类型</th>
+                    <th>删除时间</th>
+                    <th>过期时间</th>
+                    <th>操作</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${tableRows}
+                </tbody>
+              </table>
+            </div>
+            <div class="recycle-footer">
+              <div style="color: var(--text-muted); font-size: 14px;">
+                共 ${items.length} 个项目
+              </div>
+              <div>
+                ${items.length > 0 ? `<button class="btn btn-delete" onclick="emptyRecycleBin()">
+                  <i class="fas fa-trash"></i> 清空回收站
+                </button>` : ''}
+              </div>
+            </div>
+          </div>
+        `;
+        
+        document.body.appendChild(dialog);
+        
+        // 点击背景关闭
+        dialog.addEventListener('click', (e) => {
+          if (e.target === dialog) {
+            closeRecycleBin();
+          }
+        });
+        
+        // ESC键关闭
+        const handleKeyDown = (e) => {
+          if (e.key === 'Escape') {
+            closeRecycleBin();
+            document.removeEventListener('keydown', handleKeyDown);
+          }
+        };
+        document.addEventListener('keydown', handleKeyDown);
+        
+      } catch (error) {
+        console.error('显示回收站失败:', error);
+        alert('显示回收站失败: ' + error.message);
+      }
+    }
+
+    // 关闭回收站对话框
+    function closeRecycleBin() {
+      const dialog = document.querySelector('.recycle-dialog');
+      if (dialog) {
+        dialog.remove();
+      }
+    }
+
+    // 恢复文件
+    async function restoreItem(itemId) {
+      if (!confirm('确定要恢复这个项目吗？')) {
+        return;
+      }
+      
+      try {
+        const response = await fetch('/api/recycle/restore', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ id: itemId })
+        });
+        
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.error || '恢复失败');
+        }
+        
+        alert('恢复成功！');
+        closeRecycleBin();
+        loadFiles(currentPath); // 刷新文件列表
+      } catch (error) {
+        console.error('恢复失败:', error);
+        alert('恢复失败: ' + error.message);
+      }
+    }
+
+    // 永久删除
+    async function permanentDelete(itemId) {
+      if (!confirm('确定要永久删除这个项目吗？此操作不可恢复！')) {
+        return;
+      }
+      
+      try {
+        const response = await fetch('/api/recycle/permanent', {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ id: itemId })
+        });
+        
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.error || '删除失败');
+        }
+        
+        alert('永久删除成功！');
+        showRecycleBin(); // 刷新回收站列表
+      } catch (error) {
+        console.error('永久删除失败:', error);
+        alert('永久删除失败: ' + error.message);
+      }
+    }
+
+    // 清空回收站
+    async function emptyRecycleBin() {
+      if (!confirm('确定要清空回收站吗？此操作将永久删除所有项目，不可恢复！')) {
+        return;
+      }
+      
+      try {
+        const response = await fetch('/api/recycle/empty', {
+          method: 'DELETE'
+        });
+        
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.error || '清空失败');
+        }
+        
+        alert('回收站已清空！');
+        showRecycleBin(); // 刷新回收站列表
+      } catch (error) {
+        console.error('清空回收站失败:', error);
+        alert('清空回收站失败: ' + error.message);
+      }
+    }
+
+    // 格式化日期
+    function formatDate(dateString) {
+      const date = new Date(dateString);
+      return date.toLocaleString('zh-CN', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
     }
 
     // 加载系统信息

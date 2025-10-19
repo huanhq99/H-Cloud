@@ -41,6 +41,9 @@ func SetupRouter(r *gin.Engine, db *gorm.DB, cfg *config.Config) {
     // 加载HTML模板
     r.LoadHTMLGlob("public/*.html")
     
+    // 静态文件服务 - 提供storage目录的直接访问
+    r.Static("/storage", "./storage")
+    
     // 分享路由 - 智能处理图片和其他文件
     r.GET("/share/:uuid", func(ctx *gin.Context) {
         uuid := ctx.Param("uuid")
@@ -75,6 +78,8 @@ func SetupRouter(r *gin.Engine, db *gorm.DB, cfg *config.Config) {
     shareController := NewShareController(db)
     adminController := NewAdminController(cfg)
     systemController := NewSystemController(db)
+    recycleController := NewRecycleController(db)
+    searchController := NewSearchController(db)
 
     // API 路由组
     api := r.Group("/api")
@@ -101,7 +106,8 @@ func SetupRouter(r *gin.Engine, db *gorm.DB, cfg *config.Config) {
         }
 
         // 图床功能路由 - 无需认证的图片直链访问
-        api.GET("/image/:id", fileController.GetImageDirect)
+        api.GET("/image", fileController.GetImageByPath)  // 基于路径的图片直链访问
+        api.GET("/image/:id", fileController.GetImageDirect)  // 基于ID的图片直链访问
 
         // 目录相关路由
         dirs := api.Group("/directories")
@@ -125,6 +131,22 @@ func SetupRouter(r *gin.Engine, db *gorm.DB, cfg *config.Config) {
             shares.POST("/create", shareController.CreateShare)
             shares.GET("/list", shareController.ListShares)
             shares.DELETE("/:uuid", shareController.RevokeShare)
+        }
+
+        // 回收站相关路由
+        recycle := api.Group("/recycle")
+        {
+            recycle.GET("/list", recycleController.ListRecycleBin)
+            recycle.POST("/restore", recycleController.RestoreFromRecycleBin)
+            recycle.DELETE("/permanent", recycleController.PermanentDelete)
+            recycle.DELETE("/empty", recycleController.EmptyRecycleBin)
+        }
+
+        // 搜索相关路由
+        search := api.Group("/search")
+        {
+            search.GET("/files", searchController.SearchFiles)
+            search.GET("/type", searchController.SearchByType)
         }
 
         // 系统信息路由

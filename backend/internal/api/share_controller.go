@@ -115,16 +115,33 @@ func (c *ShareController) CreateShare(ctx *gin.Context) {
         return
     }
 
+    // 获取文件信息，返回直接的storage路径
+    var directLink string
+    if req.FileID != nil {
+        var file model.File
+        if err := c.DB.First(&file, *req.FileID).Error; err == nil {
+            // 返回直接的storage路径访问链接
+            directLink = fmt.Sprintf("/storage%s", file.Path)
+        }
+    }
+
     // 返回相对链接，由前端拼接域名
     link := fmt.Sprintf("/api/shares/access/%s", uuid)
-    ctx.JSON(http.StatusOK, gin.H{
+    response := gin.H{
         "message": "分享创建成功",
         "uuid": uuid,
         "link": link,
         "page": fmt.Sprintf("/share/%s", uuid),
         "expireAt": share.ExpireAt.Format(time.RFC3339),
         "isPermanent": share.NoExpire,
-    })
+    }
+    
+    // 如果是文件分享，添加直接访问链接
+    if directLink != "" {
+        response["directLink"] = directLink
+    }
+    
+    ctx.JSON(http.StatusOK, response)
 }
 
 // ListShares 列出我创建的分享

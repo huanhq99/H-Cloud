@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -235,7 +236,7 @@ func (c *DirectoryController) ListDirectories(ctx *gin.Context) {
 	})
 }
 
-// DeleteDirectory 删除目录
+// DeleteDirectory 删除目录（移至回收站）
 func (c *DirectoryController) DeleteDirectory(ctx *gin.Context) {
 	// 获取当前用户ID
 	userID, exists := ctx.Get("userID")
@@ -264,25 +265,52 @@ func (c *DirectoryController) DeleteDirectory(ctx *gin.Context) {
 		return
 	}
 
-	// 检查目录是否为空
-	var fileCount int64
-	c.DB.Model(&model.File{}).Where("directory_id = ?", dirID).Count(&fileCount)
-	
-	var subDirCount int64
-	c.DB.Model(&model.Directory{}).Where("parent_id = ?", dirID).Count(&subDirCount)
-
-	if fileCount > 0 || subDirCount > 0 {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "目录不为空，无法删除"})
+	// 创建回收站目录
+	recycleDir := filepath.Join("./storage", "recycle", fmt.Sprintf("user_%d", userID))
+	if err := os.MkdirAll(recycleDir, 0755); err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "创建回收站目录失败"})
 		return
 	}
 
-	// 删除数据库中的目录记录
+	// 生成回收站中的唯一目录名
+	timestamp := time.Now().Unix()
+	recycleName := fmt.Sprintf("%s_%d", directory.Name, timestamp)
+	recyclePath := filepath.Join(recycleDir, recycleName)
+
+	// 移动目录到回收站
+	originalPath := filepath.Join("./storage", directory.Path)
+	if err := os.Rename(originalPath, recyclePath); err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "移动目录到回收站失败"})
+		return
+	}
+
+	// 创建回收站记录
+	recycleBin := model.RecycleBin{
+		UserID:       userID.(uint),
+		OriginalName: directory.Name,
+		OriginalPath: directory.Path,
+		StoragePath:  recyclePath,
+		Size:         0, // 目录大小暂时设为0
+		ContentType:  "directory",
+		ItemType:     "directory",
+		DeletedAt:    time.Now(),
+		ExpireAt:     time.Now().AddDate(0, 0, 30), // 30天后过期
+	}
+
+	if err := c.DB.Create(&recycleBin).Error; err != nil {
+		// 如果创建回收站记录失败，恢复目录
+		os.Rename(recyclePath, originalPath)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "创建回收站记录失败"})
+		return
+	}
+
+	// 删除原始数据库记录
 	if err := c.DB.Delete(&directory).Error; err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "删除目录记录失败"})
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"message": "目录删除成功"})
+	ctx.JSON(http.StatusOK, gin.H{"message": "目录已移至回收站"})
 }
 
 // RenameDirectory 重命名目录 - H-Yun盘版本

@@ -57,6 +57,7 @@ func migrateModels() error {
         &model.File{},
         &model.Directory{},
         &model.Share{},
+        &model.RecycleBin{},
     )
 }
 

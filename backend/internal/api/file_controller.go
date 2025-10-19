@@ -3,16 +3,16 @@ package api
 import (
 	"fmt"
 	"net/http"
-	"strconv"
-	"time"
-	"path/filepath"
-	"strings"
 	"os"
+	"path/filepath"
+	"strconv"
+	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/huanhq99/H-Cloud/internal/model"
-	"github.com/huanhq99/H-Cloud/internal/storage"
 	"github.com/huanhq99/H-Cloud/internal/security"
+	"github.com/huanhq99/H-Cloud/internal/storage"
 	"gorm.io/gorm"
 )
 
@@ -376,7 +376,7 @@ func (c *FileController) listFromDatabase(ctx *gin.Context, userID int, dirPath 
 	})
 }
 
-// DeleteFile 删除文件 - H-Yun盘版本
+// DeleteFile 删除文件 - H-Yun盘版本，支持回收站
 func (c *FileController) DeleteFile(ctx *gin.Context) {
 	// 获取文件路径参数
 	filePath := ctx.Query("path")
@@ -405,19 +405,51 @@ func (c *FileController) DeleteFile(ctx *gin.Context) {
 		return
 	}
 
-	// 删除物理文件
-	if err := storage.DeleteFile(uint(userID), filePath); err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "删除文件失败: " + err.Error()})
+	// 创建回收站目录
+	recycleDir := filepath.Join(storage.StoragePath, ".recycle")
+	if err := os.MkdirAll(recycleDir, 0755); err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "创建回收站目录失败: " + err.Error()})
 		return
 	}
 
-	// 删除数据库记录
+	// 生成回收站中的唯一文件名
+	recycleFileName := fmt.Sprintf("%d_%s_%s", time.Now().Unix(), strconv.FormatUint(uint64(fileRecord.ID), 10), fileRecord.Name)
+	recycleFilePath := filepath.Join(recycleDir, recycleFileName)
+
+	// 移动文件到回收站
+	originalFilePath := filepath.Join(storage.StoragePath, filePath)
+	if err := os.Rename(originalFilePath, recycleFilePath); err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "移动文件到回收站失败: " + err.Error()})
+		return
+	}
+
+	// 创建回收站记录
+	recycleBinItem := model.RecycleBin{
+		UserID:       uint(userID),
+		OriginalName: fileRecord.Name,
+		OriginalPath: fileRecord.Path,
+		StoragePath:  recycleFileName,
+		Size:         fileRecord.Size,
+		ContentType:  fileRecord.ContentType,
+		ItemType:     "file",
+		DeletedAt:    time.Now(),
+		ExpireAt:     time.Now().AddDate(0, 0, 30), // 30天后过期
+	}
+
+	if err := c.DB.Create(&recycleBinItem).Error; err != nil {
+		// 如果创建回收站记录失败，恢复文件
+		os.Rename(recycleFilePath, originalFilePath)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "创建回收站记录失败: " + err.Error()})
+		return
+	}
+
+	// 删除原始数据库记录
 	if err := c.DB.Delete(&fileRecord).Error; err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "删除数据库记录失败: " + err.Error()})
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"message": "文件删除成功"})
+	ctx.JSON(http.StatusOK, gin.H{"message": "文件已移至回收站"})
 }
 
 // RenameFile 重命名文件 - H-Yun盘版本
@@ -500,6 +532,59 @@ func (c *FileController) GetImageDirect(ctx *gin.Context) {
 	// 查找文件记录
 	var fileRecord model.File
 	if err := c.DB.First(&fileRecord, uint(id)).Error; err != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{"error": "文件不存在"})
+		return
+	}
+
+	// 检查是否为图片文件
+	if !strings.HasPrefix(fileRecord.ContentType, "image/") {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "该文件不是图片"})
+		return
+	}
+
+	// 获取文件
+	f, err := storage.GetFile(fileRecord.UserID, fileRecord.Path)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "获取文件失败: " + err.Error()})
+		return
+	}
+	defer f.Close()
+
+	// 设置响应头
+	ctx.Header("Content-Type", fileRecord.ContentType)
+	ctx.Header("Content-Length", fmt.Sprintf("%d", fileRecord.Size))
+	ctx.Header("Cache-Control", "public, max-age=31536000") // 缓存1年
+	ctx.Header("ETag", fmt.Sprintf(`"%d-%d"`, fileRecord.ID, fileRecord.UpdatedAt.Unix()))
+	
+	// 支持跨域访问（图床功能）
+	ctx.Header("Access-Control-Allow-Origin", "*")
+	ctx.Header("Access-Control-Allow-Methods", "GET")
+	ctx.Header("Access-Control-Allow-Headers", "Content-Type")
+
+	// 返回文件内容
+	ctx.DataFromReader(http.StatusOK, fileRecord.Size, fileRecord.ContentType, f, nil)
+}
+
+// GetImageByPath 图床功能：基于路径直接访问图片（无需认证）
+func (c *FileController) GetImageByPath(ctx *gin.Context) {
+	userID := ctx.Query("userId")
+	filePath := ctx.Query("path")
+	
+	if userID == "" || filePath == "" {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "缺少必要参数 userId 或 path"})
+		return
+	}
+
+	// 转换用户ID
+	uid, err := strconv.Atoi(userID)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "无效的用户ID"})
+		return
+	}
+
+	// 查找文件记录
+	var fileRecord model.File
+	if err := c.DB.Where("user_id = ? AND path = ?", uid, filePath).First(&fileRecord).Error; err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{"error": "文件不存在"})
 		return
 	}
