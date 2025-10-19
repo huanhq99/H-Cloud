@@ -30,7 +30,7 @@ func (sc *SystemController) GetVersion(c *gin.Context) {
 	// 尝试从环境变量获取版本号
 	version := os.Getenv("APP_VERSION")
 	if version == "" {
-		version = "v1.2.3" // 默认版本号
+		version = "v1.2.4" // 默认版本号
 	}
 	
 	versionInfo := gin.H{

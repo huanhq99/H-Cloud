@@ -9,7 +9,6 @@ import (
 	"path/filepath"
 	"strings"
 	"syscall"
-	"time"
 
 	"github.com/huanhq99/H-Cloud/internal/config"
 )
@@ -62,10 +61,24 @@ func SaveFile(userID uint, dirPath string, filename string, fileSize int64, read
 		return "", err
 	}
 
-	// 生成唯一文件名
-	timestamp := time.Now().UnixNano()
-	uniqueFilename := fmt.Sprintf("%d_%s", timestamp, filename)
-	filePath := filepath.Join(fullDirPath, uniqueFilename)
+	// 处理文件名冲突，保持原始文件名
+	finalFilename := filename
+	filePath := filepath.Join(fullDirPath, finalFilename)
+	
+	// 如果文件已存在，添加数字后缀
+	counter := 1
+	for {
+		if _, err := os.Stat(filePath); os.IsNotExist(err) {
+			break // 文件不存在，可以使用这个文件名
+		}
+		
+		// 文件存在，生成新的文件名
+		ext := filepath.Ext(filename)
+		nameWithoutExt := strings.TrimSuffix(filename, ext)
+		finalFilename = fmt.Sprintf("%s (%d)%s", nameWithoutExt, counter, ext)
+		filePath = filepath.Join(fullDirPath, finalFilename)
+		counter++
+	}
 
 	// 创建文件
 	file, err := os.Create(filePath)

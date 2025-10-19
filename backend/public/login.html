@@ -327,7 +327,7 @@
 
     <div class="footer">
       <p>&copy; 2024 H-Cloud盘. 保留所有权利.</p>
-      <p style="margin-top: 8px; font-size: 11px; opacity: 0.7;">版本 v1.2.1</p>
+      <p id="version-info" style="margin-top: 8px; font-size: 11px; opacity: 0.7;">版本 v1.2.4</p>
     </div>
   </div>
 
@@ -439,7 +439,26 @@
     }
 
     // 页面加载时检查登录状态
-    document.addEventListener('DOMContentLoaded', checkLoginStatus);
+    document.addEventListener('DOMContentLoaded', () => {
+      checkLoginStatus();
+      loadVersion();
+    });
+
+    // 加载版本信息
+    async function loadVersion() {
+      try {
+        const response = await fetch('/api/version');
+        if (response.ok) {
+          const data = await response.json();
+          const versionElement = document.getElementById('version-info');
+          if (versionElement && data.version) {
+            versionElement.textContent = `版本 ${data.version}`;
+          }
+        }
+      } catch (error) {
+        console.log('获取版本信息失败:', error);
+      }
+    }
 
     // 回车键登录
     document.addEventListener('keypress', (e) => {

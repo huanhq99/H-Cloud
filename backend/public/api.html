@@ -1913,13 +1913,13 @@ function isImageFile(filename) {
         const response = await fetch('/api/version');
         if (response.ok) {
           const data = await response.json();
-          document.getElementById('system-version').value = data.version || 'v1.2.3';
+          document.getElementById('system-version').value = data.version || 'v1.2.4';
           document.getElementById('build-time').value = data.build_time || '2024-01-01';
         }
       } catch (error) {
         console.error('加载系统信息失败:', error);
         // 设置默认值
-        document.getElementById('system-version').value = 'v1.2.3';
+        document.getElementById('system-version').value = 'v1.2.4';
         document.getElementById('build-time').value = '2024-01-01';
       }
     }
